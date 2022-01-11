@@ -1,3 +1,5 @@
+pragma circom 2.0.2;
+
 include "../vocdoni-keccak/keccak.circom";
 
 include "../../../node_modules/circomlib/circuits/bitify.circom";

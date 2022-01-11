@@ -1,3 +1,5 @@
+pragma circom 2.0.2;
+
 include "../../node_modules/circomlib/circuits/comparators.circom";
 include "../../node_modules/circomlib/circuits/multiplexer.circom";
 

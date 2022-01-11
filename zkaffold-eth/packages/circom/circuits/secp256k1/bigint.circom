@@ -1,3 +1,5 @@
+pragma circom 2.0.2;
+
 include "../../node_modules/circomlib/circuits/comparators.circom";
 include "../../node_modules/circomlib/circuits/bitify.circom";
 include "../../node_modules/circomlib/circuits/gates.circom";
@@ -329,6 +331,13 @@ template BigLessThan(n, k){
         }
      }
      out <== ors[0].out;
+}
+
+function vlog(verbose, x) {
+    if (verbose == 1) {
+        log(x);
+    }
+    return x;
 }
 
 // leading register of b should be non-zero
