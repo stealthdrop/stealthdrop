@@ -57,6 +57,9 @@ function publishContract(contractName) {
       graphConfigPath,
       JSON.stringify(graphConfig, null, 2)
     );
+    if (!fs.existsSync(`${graphDir}/abis/`)){
+      fs.mkdirSync(`${graphDir}/abis/`);
+    }
     fs.writeFileSync(
       `${graphDir}/abis/${contractName}.json`,
       JSON.stringify(contract.abi, null, 2)
