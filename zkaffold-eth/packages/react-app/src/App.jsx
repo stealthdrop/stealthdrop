@@ -36,7 +36,7 @@ import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants"
 
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS['ropsten']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS['localhost']; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true
@@ -246,7 +246,7 @@ function App(props) {
 
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">WordLinesToken</Link>
+            <Link onClick={()=>{setRoute("/")}} to="/">ZKT</Link>
           </Menu.Item>
         </Menu>
 
@@ -259,7 +259,7 @@ function App(props) {
             */}
 
             <Contract
-              name="WordLinesToken"
+              name="ZKT"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}

@@ -3,10 +3,10 @@
 module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  await deploy("WordLinesToken", {
+  await deploy("ZKT", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
-    // args: ["Hello"],
+    args: ["0x123", "0x111"],
     log: true,
   });
 
@@ -18,7 +18,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     //const yourContract = await ethers.getContractAt('YourContract', "0xaAC799eC2d00C013f1F11c37E654e59B0429DF6A") //<-- if you want to instantiate a version of a contract at a specific address!
   */
 };
-module.exports.tags = ["WordLinesToken"];
+module.exports.tags = ["ZKT"];
 
 /*
 Tenderly verification
