@@ -279,8 +279,7 @@ function App(props) {
             */ }
           </Route>
           <Route exact path="/withdraw">
-            <Withdraw  signer={userProvider.getSigner()}
- />
+            <Withdraw  signer={userProvider.getSigner()} address={address} />
           </Route>
           <Route path="/hints">
             <Hints

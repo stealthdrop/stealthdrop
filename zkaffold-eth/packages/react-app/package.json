@@ -43,6 +43,7 @@
     "eth-hooks": "^1.1.2",
     "ethers": "^5.0.31",
     "ffjavascript": "^0.2.35",
+    "fixed-merkle-tree": "^0.6.0",
     "graphiql": "^1.0.5",
     "graphql": "^15.3.0",
     "isomorphic-fetch": "^3.0.0",
@@ -57,7 +58,8 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "^3.4.3",
     "snarkjs": "^0.3.60",
-    "web3modal": "^1.9.1"
+    "web3modal": "^1.9.1",
+    "zkp-utils": "^1.0.8"
   },
   "devDependencies": {
     "@testing-library/dom": "^6.12.2",

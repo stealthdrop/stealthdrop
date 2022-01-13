@@ -2,11 +2,13 @@ import { Button } from "antd";
 import stringify from "fast-json-stable-stringify";
 import React from "react";
 import { useState } from "react";
+import { mimcHash } from "zkp-utils";
 import { AddressInput } from ".";
+import { getPath } from "../AirdropData";
 
 const signText = "ZK Airdrop: Sign this message to withdraw your ZK tokens";
 
-export default function Withdraw({ signer }) {
+export default function Withdraw({ signer, address }) {
   const [withdrawAddress, setWithdrawAddress] = useState();
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
@@ -19,9 +21,10 @@ export default function Withdraw({ signer }) {
   };
 
   const generateProof = async () => {
-    // somehow generate zk proof
-    setProof({a: 0, b: 0, c: 0, merkleRoot: "0x239839aBcd", nullifierHash: "lol"});
-  }
+    const [pathElements, pathIndex] = getPath(mimcHash(address));
+    setProof({ a: 0, b: 0, c: 0, merkleRoot: "0x239839aBcd", nullifierHash: "lol" });
+  };
+
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
