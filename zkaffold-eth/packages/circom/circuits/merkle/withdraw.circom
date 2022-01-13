@@ -36,6 +36,10 @@ template Withdraw(levels, k) {
     signal input pathElements[levels];
     signal input pathIndices[levels];
 
+    // These two are added to ensure that no one can frontrun this proof
+    signal input claimerAddress;
+    signal input claimerAddressMinusOne;
+
     signal output nullifierHash;
 
     component pubmimc = ArrayMIMC(k);
@@ -54,7 +58,11 @@ template Withdraw(levels, k) {
     }
 
     component hasher = CommitmentHasher();
-    hasher.nullifier <== pubmimc.mimc;
-    hasher.secret <== sigmimc.mimc;
+    hasher.nullifier <== sigmimc.mimc;
+    hasher.secret <== pubmimc.mimc;
     nullifierHash <== hasher.nullifierHash;
+
+    // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
+    claimerAddressMinusOne <== claimerAddress - 1;
+
 }

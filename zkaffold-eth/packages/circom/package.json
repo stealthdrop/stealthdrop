@@ -5,8 +5,8 @@
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "circom": "^0.5.38",
-    "circomlib": "^0.4.1",
+    "circom": null,
+    "circomlib": "^2.0.0",
     "dotenv": "^8.2.0",
     "snarkjs": "^0.3.60"
   },

@@ -1,16 +1,17 @@
 pragma circom 2.0.2;
 
-include "../merkle/withdraw.circom"
-include "../secp256k1/ecdsa.circom"
+include "../merkle/withdraw.circom";
+include "../secp256k1/ecdsa.circom";
 
 template Main(n, k, levels) {
     signal input r[k];
     signal input s[k];
     signal input msghash[k];
     signal input pubkey[2][k];
-    signal input root;
+    signal input root[k];
     signal input pathElements[levels];
     signal input pathIndices[levels];
+    signal output nullifierHash;
 
     component sigVerify = ECDSAVerify(n, k);
     for (var i = 0;i < k;i++) {
@@ -31,6 +32,7 @@ template Main(n, k, levels) {
         withdrawal.pathElements[i] <== pathElements[i];
         withdrawal.pathIndices[i] <== pathIndices[i];
     }
+    nullifierHash <== withdrawal.nullifierHash;
 }
 
 component main = Main(86, 3, 20);
