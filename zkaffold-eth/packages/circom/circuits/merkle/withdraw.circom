@@ -2,9 +2,9 @@ pragma circom 2.0.2;
 
 include "../../node_modules/circomlib/circuits/bitify.circom";
 include "../../node_modules/circomlib/circuits/pedersen.circom";
-include "../secp256k1//vocdoni-keccak/keccak.circom";
+include "../secp256k1/vocdoni-keccak/keccak.circom";
 include "merkleTree.circom";
-include "../secp256k1//zk-identity/eth.circom";
+include "../secp256k1/zk-identity/eth.circom";
 include "../secp256k1/bigint.circom";
 
 // computes Pedersen(nullifier + secret)

@@ -268,7 +268,7 @@ template ECDSAVerify(n, k) {
         sinv_check.b[idx] <== s[idx];
         sinv_check.p[idx] <== order[idx];
     }
-    for (var idx = 0; idx < k; idx++) {    
+    for (var idx = 0; idx < k; idx++) {
         if (idx > 0) {
             sinv_check.out[idx] === 0;
         }

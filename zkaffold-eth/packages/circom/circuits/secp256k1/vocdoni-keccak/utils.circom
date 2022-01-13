@@ -11,7 +11,7 @@ template Xor5(n) {
     signal input e[n];
     signal output out[n];
     var i;
-    
+
     component xor3 = Xor3(n);
     for (i=0; i<n; i++) {
         xor3.a[i] <== a[i];
