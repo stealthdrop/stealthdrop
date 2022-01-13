@@ -3,7 +3,7 @@ pragma circom 2.0.2;
 include "../merkle/withdraw.circom";
 include "../secp256k1/ecdsa.circom";
 
-template Main(n, k, levels) {
+template Main(levels, n, k) {
     signal input r[k];
     signal input s[k];
     signal input msghash[k];
@@ -32,7 +32,7 @@ template Main(n, k, levels) {
         withdrawal.pathElements[i] <== pathElements[i];
         withdrawal.pathIndices[i] <== pathIndices[i];
     }
-    nullifierHash === withdrawal.nullifierHash;
+    nullifierHash <== withdrawal.nullifierHash;
 }
 
-component main = Main(86, 3, 20);
+component main = Main(16, 86, 3);
