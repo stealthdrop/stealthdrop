@@ -8,7 +8,7 @@ template Main(n, k, levels) {
     signal input s[k];
     signal input msghash[k];
     signal input pubkey[2][k];
-    signal input root[k];
+    signal input root;
     signal input pathElements[levels];
     signal input pathIndices[levels];
     signal output nullifierHash;

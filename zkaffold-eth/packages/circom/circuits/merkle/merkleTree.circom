@@ -1,4 +1,4 @@
-include "../node_modules/circomlib/circuits/mimcsponge.circom";
+include "../../node_modules/circomlib/circuits/mimcsponge.circom";
 
 // Computes MiMC([left, right])
 template HashLeftRight() {
@@ -6,7 +6,7 @@ template HashLeftRight() {
     signal input right;
     signal output hash;
 
-    component hasher = MiMCSponge(2, 1);
+    component hasher = MiMCSponge(2, 220, 1); // secp library on an earlier version of circom without the 220, // TODO is the code different?
     hasher.ins[0] <== left;
     hasher.ins[1] <== right;
     hasher.k <== 0;
@@ -20,7 +20,7 @@ template DualMux() {
     signal input s;
     signal output out[2];
 
-    s * (1 - s) === 0
+    s * (1 - s) === 0;
     out[0] <== (in[1] - in[0])*s + in[0];
     out[1] <== (in[0] - in[1])*s + in[1];
 }
@@ -58,12 +58,13 @@ template ArrayMIMC(k) {
     for(var i = 0;i < k;i++) prefix_hash[i] = HashLeftRight();
     for(var i = 0;i < k;i++) {
         if (i == 0) {
-            prefix_hash[i] <== inp[i];
+            prefix_hash[i].left <== inp[i];
+            prefix_hash[i].right <== inp[i+1]; // TODO: this works when k = 1 but doesnt seem correct OTHERWISE
         }
         else {
             prefix_hash[i].left <== inp[i];
-            prefix_hash[i].right <== prefix_hash[i-1].hash;
+            prefix_hash[i].right <== prefix_hash[i-1].hash; // TODO: arent left and right switched
         }
     }
-    mimc <== prefix_hash[k-1].out;
+    mimc <== prefix_hash[k-1].hash;
 }

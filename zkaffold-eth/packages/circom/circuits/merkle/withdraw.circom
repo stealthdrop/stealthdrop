@@ -1,7 +1,7 @@
 pragma circom 2.0.2;
 
-include "../node_modules/circomlib/circuits/bitify.circom";
-include "../node_modules/circomlib/circuits/pedersen.circom";
+include "../../node_modules/circomlib/circuits/bitify.circom";
+include "../../node_modules/circomlib/circuits/pedersen.circom";
 include "merkleTree.circom";
 
 // computes Pedersen(nullifier + secret)
@@ -32,14 +32,13 @@ template Withdraw(levels, k) {
     signal input root;
     signal input r[k];
     signal input s[k];
-    signal input pubkey[k];
+    signal input pubkey[2][k];
     signal input pathElements[levels];
     signal input pathIndices[levels];
 
     // These two are added to ensure that no one can frontrun this proof
     signal input claimerAddress;
     signal input claimerAddressMinusOne;
-
     signal output nullifierHash;
 
     component pubmimc = ArrayMIMC(k);
@@ -64,5 +63,4 @@ template Withdraw(levels, k) {
 
     // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
     claimerAddressMinusOne <== claimerAddress - 1;
-
 }
