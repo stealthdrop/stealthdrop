@@ -45,7 +45,6 @@ template Withdraw(levels, n, k) {
     signal input claimerAddressMinusOne;
     signal output nullifierHash;
 
-
     component flattenPub = FlattenPubkey(n, k);
     for (var i = 0; i < k; i++) {
         flattenPub.chunkedPubkey[0][i] <== pubkey[0][i];
