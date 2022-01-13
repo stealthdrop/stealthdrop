@@ -1,5 +1,5 @@
 const MerkleTree = require('fixed-merkle-tree');
-const circomlib = require('circomlib');
+const circomlib = require('tornado-circomlib');
 const snarkjs = require('snarkjs');
 const bigInt = snarkjs.bigInt;
 // const crypto = require('crypto');
@@ -7,6 +7,7 @@ const ethers = require('ethers');
 const { getPublicKey, sign, Point, CURVE } = require('@noble/secp256k1');
 const keccak256 = require('keccak256');
 const { assert } = require('console');
+const fs = require('fs');
 
 const fromHexString = (hexString) =>
   new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
@@ -79,7 +80,7 @@ async function generateTestCases() {
 
     // Split into registers
     for (let i = 0; i < k; i++) {
-      bytes_split.push([m.slice(register_length * i, register_length * (i + 1))]);
+      bytes_split.push(m.slice(register_length * i, register_length * (i + 1)));
     }
     return bytes_split;
   }
@@ -115,33 +116,37 @@ async function generateTestCases() {
     const tree = new MerkleTree(16);
     const pedersenHash = (data) =>
       circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0];
-    tree.insert(pedersenHash(hexAddress));
+    const nullifierHash = pedersenHash(hexAddress);
+    tree.insert(nullifierHash);
 
     const { pathElements, pathIndices } = tree.path(0);
-    for (const sister in pathElements) {
-      pathElements[sister] = intToHex(pathElements[sister]);
-    }
+    // for (const sister in pathElements) {
+    //   pathElements[sister] = intToHex(pathElements[sister]);
+    // }
     for (const sister in pathIndices) {
       pathIndices[sister] = pathIndices[sister].toString();
     }
-    console.log(intToHex(tree.root()));
+    console.log("root", intToHex(tree.root()));
+    console.log("msghash", msghash);
 
-    console.log(
-      JSON.stringify(
+    
+    const json = JSON.stringify(
         {
           root: tree.root(),
           r: split(r, k),
           s: split(s, k),
-          pubKey: [split(pubkey.x.toString(), k), split(pubkey.y.toString(), k)],
+          msghash: split(msghash_bigint.toString(), k),
+          pubkey: [split(pubkey.x.toString(), k), split(pubkey.y.toString(), k)],
           pathElements: pathElements,
           pathIndices: pathIndices,
           claimerAddress: hexStringToBigInt(hexAddress).toString(10),
           claimerAddressMinusOne: (hexStringToBigInt(hexAddress) - BigInt(1)).toString(10),
+          nullifierHash: nullifierHash.toString(),
         },
         null,
         '\t'
-      )
-    );
+      );
+    fs.writeFile('circuits/airdrop/inputs/input_' + idx.toString() + '.json', json, 'utf8', () => {});
   }
 }
 
