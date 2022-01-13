@@ -2,9 +2,9 @@ pragma circom 2.0.2;
 
 include "../../node_modules/circomlib/circuits/bitify.circom";
 include "../../node_modules/circomlib/circuits/pedersen.circom";
-include "../secp256k1/vocdoni-keccak/keccak.circom";
+include "../vocdoni-keccak/keccak.circom";
 include "merkleTree.circom";
-include "../secp256k1/zk-identity/eth.circom";
+include "../zk-identity/eth.circom";
 include "../secp256k1/bigint.circom";
 
 // computes Pedersen(nullifier + secret)
@@ -50,16 +50,16 @@ template Withdraw(levels, k) {
 
     for (var i = 0; i < k; i++) {
         n2b[i] = Num2Bits(256 / k + 1);
-        n2b.in <== pubkey[0][i];
+        n2b[i].in <== pubkey[0][i];
         for (var j = 0; j < 256 / k + 1; j++) {
-            addressGenerator.pubkeyBits[j + i * (256 / k + 1)] <== n2b.out[j];
+            addressGenerator.pubkeyBits[j + i * (256 / k + 1)] <== n2b[i].out[j];
         }
     }
     for (var i = 0; i < k; i++) {
         n2b[k + i] = Num2Bits(256 / k + 1);
-        n2b.in <== pubkey[1][i];
+        n2b[k + i].in <== pubkey[1][i];
         for (var j = 0; j < 256 / k + 1; j++) {
-            addressGenerator.pubkeyBits[256 + j + i * (256 / k + 1)] <== n2b.out[j];
+            addressGenerator.pubkeyBits[256 + j + i * (256 / k + 1)] <== n2b[k+i].out[j];
         }
         // TODO: definitely an off by 1 error here
         // TODO: use SplitThreeFn instead
@@ -92,7 +92,7 @@ template Withdraw(levels, k) {
     // Compute and verify the nullifier hash and
     component hasher = CommitmentHasher();
     hasher.nullifier <== sigmimc.mimc; // The signature should be the public thing
-    hasher.secret <== addressMimc.outs[0];
+    // hasher.secret <== addressMimc.outs[0];
     nullifierHash === hasher.nullifierHash;
 
     // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
