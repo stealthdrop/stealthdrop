@@ -1,0 +1,20 @@
+{
+  "name": "zk-node-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ffjavascript": "^0.2.38",
+    "path": "^0.12.7",
+    "snarkjs": "^0.4.6",
+    "start": "^5.1.0"
+  }
+}
