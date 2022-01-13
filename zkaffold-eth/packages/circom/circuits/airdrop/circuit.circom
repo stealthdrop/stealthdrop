@@ -16,13 +16,13 @@ template Main(levels, n, k) {
     signal input claimerAddressMinusOne;
     signal output nullifierHash;
 
-    component sigVerify = ECDSAVerify(n, k);
-    for (var i = 0;i < k;i++) {
-        sigVerify.r[i] <== r[i];
-        sigVerify.s[i] <== s[i];
-        sigVerify.msghash[i] <== msghash[i];
-        for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
-    }
+    // component sigVerify = ECDSAVerify(n, k);
+    // for (var i = 0;i < k;i++) {
+        // sigVerify.r[i] <== r[i];
+        // sigVerify.s[i] <== s[i];
+        // sigVerify.msghash[i] <== msghash[i];
+        // for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
+    // }
 
     component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
