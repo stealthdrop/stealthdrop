@@ -67,10 +67,20 @@ for (circuitName of circuitsList.split(",")) {
     execSync("circom circuit.circom --r1cs --wasm --sym", { stdio: "inherit" });
     execSync("npx snarkjs r1cs info circuit.r1cs", { stdio: "inherit" });
     execSync(
-      "npx snarkjs zkey new circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau circuit_" +
-        circuitName +
-        ".zkey",
-      { stdio: "inherit" }
+      'circom circuit.circom --r1cs --wasm --sym',
+      { stdio: 'inherit' }
+    );
+    execSync(
+      'cp circuit_js/circuit.wasm circuit.wasm',
+      { stdio: 'inherit' }
+    );
+    execSync(
+      'npx snarkjs r1cs info circuit.r1cs',
+      { stdio: 'inherit' }
+    );
+    execSync(
+      'npx snarkjs zkey new circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau circuit_' + circuitName + '.zkey',
+      { stdio: 'inherit' }
     );
     if (deterministic) {
       execSync(
@@ -95,7 +105,11 @@ for (circuitName of circuitsList.split(",")) {
       { stdio: "inherit" }
     );
     execSync(
+<<<<<<< HEAD
       "npx snarkjs wtns calculate circuit.wasm inputs/input.json witness.wtns",
+=======
+      'node circuit_js/generate_witness.js circuit.wasm inputs/input.json witness.wtns',
+>>>>>>> fb05d6eabd1a51292ce94e30bd27d7587a26ccae
       {
         stdio: "inherit",
       }

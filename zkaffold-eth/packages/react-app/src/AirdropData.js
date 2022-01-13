@@ -1,8 +1,6 @@
 import { MerkleTree } from "fixed-merkle-tree";
 
-const merkleTree = new MerkleTree(merkleTreeLevels, merkleTreeLeaves)
-
-const merkleTreeRoot = '0x0000000000000000000000000000000000000000000000000000000000000000';
+export const merkleTreeRoot = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 const merkleTreeLevels = 4;
 
@@ -34,3 +32,5 @@ const merkleTreeLeaves = [
   "0x000000000000000000000000000000000000000000000000000000000000000e",
   "0x000000000000000000000000000000000000000000000000000000000000000f",
 ]
+
+const merkleTree = new MerkleTree(merkleTreeLevels, merkleTreeLeaves);
