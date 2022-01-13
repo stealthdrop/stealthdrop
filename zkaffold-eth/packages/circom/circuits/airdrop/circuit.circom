@@ -4,13 +4,16 @@ include "../merkle/withdraw.circom";
 include "../secp256k1/ecdsa.circom";
 
 template Main(levels, n, k) {
+    signal input root;
     signal input r[k];
     signal input s[k];
     signal input msghash[k];
     signal input pubkey[2][k];
-    signal input root;
     signal input pathElements[levels];
     signal input pathIndices[levels];
+
+    signal input claimerAddress;
+    signal input claimerAddressMinusOne;
     signal output nullifierHash;
 
     component sigVerify = ECDSAVerify(n, k);
@@ -23,6 +26,8 @@ template Main(levels, n, k) {
 
     component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
+    withdrawal.claimerAddress <== claimerAddress;
+    withdrawal.claimerAddressMinusOne <== claimerAddressMinusOne;
     for (var i = 0;i < k;i++) {
         withdrawal.r[i] <== r[i];
         withdrawal.s[i] <== s[i];

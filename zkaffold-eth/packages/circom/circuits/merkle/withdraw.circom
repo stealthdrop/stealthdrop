@@ -81,7 +81,7 @@ template Withdraw(levels, n, k) {
     component hasher = CommitmentHasher();
     hasher.nullifier <== sigmimc.mimc; // The signature should be the public thing
     // hasher.secret <== addressMimc.outs[0];
-    nullifierHash === hasher.nullifierHash;
+    nullifierHash <== hasher.nullifierHash;
 
     // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
     claimerAddressMinusOne === claimerAddress - 1;
