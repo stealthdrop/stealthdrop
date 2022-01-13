@@ -31,7 +31,8 @@ template CommitmentHasher() {
 }
 
 // Verifies that commitment that corresponds to given secret and nullifier is included in the merkle tree of deposits
-template Withdraw(levels, k) {
+// Levels in merkle tree, n is the number of bits per each of the k registers
+template Withdraw(levels, n, k) {
     signal input root;
     signal input r[k];
     signal input s[k];
@@ -44,34 +45,21 @@ template Withdraw(levels, k) {
     signal input claimerAddressMinusOne;
     signal output nullifierHash;
 
-    // Verify the Keccak(pk.x || pk.y) maps to the hash(address)
-    component addressGenerator = PubkeyToAddress();
-    component n2b[2 * k];
 
+    component flattenPub = FlattenPubkey(n, k);
     for (var i = 0; i < k; i++) {
-        n2b[i] = Num2Bits(256 / k + 1);
-        n2b[i].in <== pubkey[0][i];
-        for (var j = 0; j < 256 / k + 1; j++) {
-            addressGenerator.pubkeyBits[j + i * (256 / k + 1)] <== n2b[i].out[j];
-        }
+        flattenPub.chunkedPubkey[0][i] <== pubkey[0][i];
+        flattenPub.chunkedPubkey[1][i] <== pubkey[1][i];
     }
-    for (var i = 0; i < k; i++) {
-        n2b[k + i] = Num2Bits(256 / k + 1);
-        n2b[k + i].in <== pubkey[1][i];
-        for (var j = 0; j < 256 / k + 1; j++) {
-            addressGenerator.pubkeyBits[256 + j + i * (256 / k + 1)] <== n2b[k+i].out[j];
-        }
-        // TODO: definitely an off by 1 error here
-        // TODO: use SplitThreeFn instead
+
+    component addressGenerator = PubkeyToAddress();
+    for (var i = 0; i < 512; i++) {
+        addressGenerator.pubkeyBits[i] <== flattenPub.pubkeyBits[i];
     }
-    // for (var i = 0; i < 256 / k; i++) {
-    //     addressGenerator.pubkeyBits[i] <== pubkey[0][i];
-    //     addressGenerator.pubkeyBits[i+256] <== pubkey[1][i];
-    // }
-    var address = addressGenerator.address;
+
     // TODO replace MIMC with Pedersen
     component addressMimc = MiMCSponge(1, 220, 1);
-    addressMimc.ins[0] <== address;
+    addressMimc.ins[0] <== addressGenerator.address;
     addressMimc.k <== 0;
 
     // Calculate MIMC of the signature

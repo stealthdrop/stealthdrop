@@ -21,7 +21,7 @@ template Main(n, k, levels) {
         for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
     }
 
-    component withdrawal = Withdraw(levels, k);
+    component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
     for (var i = 0;i < k;i++) {
         withdrawal.r[i] <== r[i];
@@ -32,7 +32,7 @@ template Main(n, k, levels) {
         withdrawal.pathElements[i] <== pathElements[i];
         withdrawal.pathIndices[i] <== pathIndices[i];
     }
-    nullifierHash <== withdrawal.nullifierHash;
+    nullifierHash === withdrawal.nullifierHash;
 }
 
 component main = Main(86, 3, 20);
