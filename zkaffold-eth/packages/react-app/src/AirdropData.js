@@ -5,6 +5,7 @@ export const merkleTreeRoot = '0x00000000000000000000000000000000000000000000000
 const merkleTreeLevels = 4;
 
 export const getPath = (pkHash) => {
+    const merkleTree = new MerkleTree(merkleTreeLevels, merkleTreeLeaves);
     let index = -1;
     for(var i = 0; i < merkleTreeLeaves.length; i++){
         if(pkHash === merkleTreeLeaves[i]){
@@ -15,9 +16,14 @@ export const getPath = (pkHash) => {
     return [pathElements, pathIndex];
 }
 
+export const isEligible = (address) => {
+    console.log("isEligible", address);
+    return !!merkleTreeLeaves.find(leaf => leaf === address);
+}
+
 const merkleTreeLeaves = [
   "0x0000000000000000000000000000000000000000000000000000000000000001", 
-  "0x0000000000000000000000000000000000000000000000000000000000000002",
+  "0xc2D8cFCB9A7646496e4534c315FB53DCaC55061F",
   "0x0000000000000000000000000000000000000000000000000000000000000003",
   "0x0000000000000000000000000000000000000000000000000000000000000004",
   "0x0000000000000000000000000000000000000000000000000000000000000005",
@@ -33,4 +39,3 @@ const merkleTreeLeaves = [
   "0x000000000000000000000000000000000000000000000000000000000000000f",
 ]
 
-const merkleTree = new MerkleTree(merkleTreeLevels, merkleTreeLeaves);
