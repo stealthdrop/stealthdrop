@@ -5,15 +5,16 @@
   "license": "MIT",
   "dependencies": {
     "@noble/secp256k1": "^1.4.0",
+    "big-integer": "^1.6.51",
     "ethers": "^5.5.3",
     "keccak256": "^1.0.6"
   },
   "devDependencies": {
-    "circom": "./node_modules/.cache/null",
+    "circom": null,
     "circomlib": "^2.0.0",
-    "tornado-circomlib": "git+https://github.com/tornadocash/circomlib.git#c372f14d324d57339c88451834bf2824e73bbdbc",
     "dotenv": "^8.2.0",
-    "snarkjs": "^0.3.60"
+    "snarkjs": "^0.3.60",
+    "tornado-circomlib": "git+https://github.com/tornadocash/circomlib.git#c372f14d324d57339c88451834bf2824e73bbdbc"
   },
   "scripts": {
     "compile": "node ./scripts/compile.js",

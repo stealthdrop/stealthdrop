@@ -8,6 +8,7 @@ const { getPublicKey, sign, Point, CURVE } = require('@noble/secp256k1');
 const keccak256 = require('keccak256');
 const { assert } = require('console');
 const fs = require('fs');
+const mimcfs = require('./mimc.js');
 
 const fromHexString = (hexString) =>
   new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
@@ -66,11 +67,11 @@ async function generateTestCases() {
     }
     return { r, s, v };
   }
-  function split(m, k) {
+  function split(m, n, k) {
     // m is the string, k is the number of registers (parts)
     const bytes_split = [];
     const len = m.length;
-    const register_length = len / k;
+    const register_length = n;
 
     // Pad with zeros
     if (len > register_length * k) {
@@ -84,7 +85,46 @@ async function generateTestCases() {
     }
     return bytes_split;
   }
-  for (var idx = 0; idx < proverPrivkeys.length; idx++) {
+
+  function bigint_to_tuple(x) {
+      // 2 ** 86
+      let mod = 77371252455336267181195264n;
+      let ret = [0n, 0n, 0n];
+
+      var x_temp = x;
+      for (var idx = 0; idx < 3; idx++) {
+          ret[idx] = x_temp % mod;
+          x_temp = x_temp / mod;
+      }
+      return ret;
+  }
+
+  function bigint_to_array(n, k, x) {
+      let mod = 1n;
+      for (var idx = 0; idx < n; idx++) {
+          mod = mod * 2n;
+      }
+
+      let ret = [];
+      var x_temp = x;
+      for (var idx = 0; idx < k; idx++) {
+          ret.push(x_temp % mod);
+          x_temp = x_temp / mod;
+      }
+      return ret;
+  }
+
+  // bigendian
+  function Uint8Array_to_bigint(x) {
+      var ret = 0n;
+      for (var idx = 0; idx < x.length; idx++) {
+          ret = ret * 256n;
+    ret = ret + BigInt(x[idx]);
+      }
+      return ret;
+  }
+
+  for (var idx = 0; idx < 1; idx++) {
     const privkey = proverPrivkeys[idx];
     const pubkey = Point.fromPrivateKey(privkey);
     const msg = 'zk-airdrop';
@@ -95,7 +135,14 @@ async function generateTestCases() {
       der: false,
     });
     const { r, s, v } = parseSignature(sig); //TODO maybe just sig
+    var r_bigint = Uint8Array_to_bigint(r);
+    var s_bigint = Uint8Array_to_bigint(s);
+    var r_array = bigint_to_array(86, 3, r_bigint);
+    var s_array = bigint_to_array(86, 3, s_bigint);
+    var msghash_array = bigint_to_array(86, 3, msghash_bigint);
     test_cases.push([privkey, msghash_bigint, sig, pubkey.x, pubkey.y]);
+    console.log("pubkey x", pubkey.x);
+    console.log("pubkey y", pubkey.y);
 
     // Get address from public key: https://ethereum.stackexchange.com/questions/29476/generating-an-address-from-a-public-key
     // let fullPubKey = keccak256(pubkey.x.toString() + pubkey.y.toString());
@@ -113,30 +160,39 @@ async function generateTestCases() {
     console.log('Private key: ', privkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(16);
-    const pedersenHash = (data) =>
-      circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0];
-    const nullifierHash = pedersenHash(hexAddress);
-    tree.insert(nullifierHash);
+    const tree = new MerkleTree(1, [], {hashFunction: mimcfs.mimcHash(0)});
+
+    const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
+    // const pedersenHash = (data) =>
+    //   circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0];
+    const nullifierHash = mimc;
+
+    const treeLeaf = mimcfs.mimcHash(1)(BigInt(wallet.address));
+    console.log("treeLeaf", treeLeaf);
+    tree.insert(treeLeaf);
+    console.log("hexAddress", hexAddress);
+    console.log("nullifierHash", nullifierHash);
 
     const { pathElements, pathIndices } = tree.path(0);
+    console.log("pathElements", pathElements);
+    console.log("pathIndices", pathIndices);
+    const mimcleaves = mimcfs.mimcHash(0)(treeLeaf, BigInt(pathElements[0]));
+    console.log("mimcleaves", mimcleaves);
     // for (const sister in pathElements) {
     //   pathElements[sister] = intToHex(pathElements[sister]);
     // }
-    for (const sister in pathIndices) {
-      pathIndices[sister] = pathIndices[sister].toString();
-    }
-    console.log("root", intToHex(tree.root()));
+    console.log("root", tree.root());
+    console.log("_layers", tree._layers);
     console.log("msghash", msghash);
 
     
     const json = JSON.stringify(
         {
           root: tree.root(),
-          r: split(r, k),
-          s: split(s, k),
-          msghash: split(msghash_bigint.toString(), k),
-          pubkey: [split(pubkey.x.toString(), k), split(pubkey.y.toString(), k)],
+          r: r_array.map(x => x.toString()),
+          s: s_array.map(x => x.toString()),
+          msghash: msghash_array.map(x => x.toString()),
+          pubkey: [bigint_to_tuple(pubkey.x).map(x => x.toString()), bigint_to_tuple(pubkey.y).map(x => x.toString())],
           pathElements: pathElements,
           pathIndices: pathIndices,
           claimerAddress: hexStringToBigInt(hexAddress).toString(10),

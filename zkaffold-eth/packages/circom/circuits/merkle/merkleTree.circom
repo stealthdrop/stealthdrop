@@ -8,7 +8,7 @@ template HashLeftRight() {
     signal input right;
     signal output hash;
 
-    component hasher = MiMCSponge(2, 220, 1); // secp library on an earlier version of circom without the 220, // TODO is the code different?
+    component hasher = MiMCSponge(2, 220, 1);
     hasher.ins[0] <== left;
     hasher.ins[1] <== right;
     hasher.k <== 0;
@@ -48,25 +48,7 @@ template MerkleTreeChecker(levels) {
         hashers[i].left <== selectors[i].out[0];
         hashers[i].right <== selectors[i].out[1];
     }
+    log(hashers[levels - 1].hash);
 
     root === hashers[levels - 1].hash;
-}
-
-template ArrayMIMC(k) {
-    signal input inp[k];
-    signal output mimc;
-
-    component prefix_hash[k];
-    for(var i = 0;i < k;i++) prefix_hash[i] = HashLeftRight();
-    for(var i = 0;i < k;i++) {
-        if (i == 0) {
-            prefix_hash[i].left <== inp[i];
-            prefix_hash[i].right <== inp[i+1]; // TODO: this works when k = 1 but doesnt seem correct OTHERWISE
-        }
-        else {
-            prefix_hash[i].left <== inp[i];
-            prefix_hash[i].right <== prefix_hash[i-1].hash; // TODO: arent left and right switched
-        }
-    }
-    mimc <== prefix_hash[k-1].hash;
 }

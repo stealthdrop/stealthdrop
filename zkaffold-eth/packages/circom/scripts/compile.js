@@ -98,7 +98,7 @@ for (circuitName of circuitsList.split(",")) {
       { stdio: "inherit" }
     );
     execSync(
-      "node circuit_js/generate_witness.js circuit.wasm inputs/input.json witness.wtns",
+      'node circuit_js/generate_witness.js circuit.wasm inputs/input_0.json witness.wtns',
       {
         stdio: "inherit",
       }

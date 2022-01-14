@@ -14,30 +14,36 @@ template Main(levels, n, k) {
 
     signal input claimerAddress;
     signal input claimerAddressMinusOne;
-    signal output nullifierHash;
+    signal input nullifierHash;
 
-    // component sigVerify = ECDSAVerify(n, k); //9480361 constraints
-    // for (var i = 0;i < k;i++) {
-    //     sigVerify.r[i] <== r[i];
-    //     sigVerify.s[i] <== s[i];
-    //     sigVerify.msghash[i] <== msghash[i];
-    //     for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
-    // }
+    component sigVerify = ECDSAVerify(n, k);
+    for (var i = 0;i < k;i++) {
+        sigVerify.r[i] <== r[i];
+        sigVerify.s[i] <== s[i];
+        sigVerify.msghash[i] <== msghash[i];
+        for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
+    }
 
     component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
-    withdrawal.claimerAddress <== claimerAddress;
-    withdrawal.claimerAddressMinusOne <== claimerAddressMinusOne;
     for (var i = 0;i < k;i++) {
-        withdrawal.r[i] <== r[i];
-        withdrawal.s[i] <== s[i];
         for (var j = 0;j < 2;j++) withdrawal.pubkey[j][i] <== pubkey[j][i];
     }
     for (var i = 0;i < levels;i++) {
         withdrawal.pathElements[i] <== pathElements[i];
         withdrawal.pathIndices[i] <== pathIndices[i];
     }
-    nullifierHash <== withdrawal.nullifierHash;
+
+    component nullifier = Nullify(k);
+    for (var i = 0;i < k;i++) {
+        nullifier.r[i] <== r[i];
+        nullifier.s[i] <== s[i];
+    }
+    nullifierHash === nullifier.nullifierHash;
+
+    component replay = CheckReplay();
+    replay.claimerAddress <== claimerAddress;
+    replay.claimerAddressMinusOne <== claimerAddressMinusOne;    
 }
 
-component main = Main(16, 86, 3);
+component main = Main(1, 86, 3);
