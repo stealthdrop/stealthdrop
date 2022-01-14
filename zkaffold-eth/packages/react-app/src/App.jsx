@@ -17,14 +17,14 @@ import {
   useBalance,
   useExternalContractLoader,
 } from "./hooks";
-import { Header, Account, Faucet, Ramp, Contract, GasGauge, ThemeSwitch } from "./components";
+import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components";
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views";
-import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 import Withdraw from "./components/Withdraw";
+import NewAirdrop from "./components/NewAirdrop";
 /*
     Welcome to 🏗 scaffold-eth !
 
@@ -277,19 +277,6 @@ function App(props) {
       <Header />
       {networkDisplay}
       <BrowserRouter>
-        <Menu style={{ textAlign: "center" }} selectedKeys={[route]} mode="horizontal">
-          <Menu.Item key="/">
-            <Link
-              onClick={() => {
-                setRoute("/");
-              }}
-              to="/"
-            >
-              ZKT
-            </Link>
-          </Menu.Item>
-        </Menu>
-
         <Switch>
           <Route exact path="/">
             {/*
@@ -319,6 +306,14 @@ function App(props) {
           </Route>
           <Route exact path="/withdraw">
             <Withdraw
+              signer={userProvider.getSigner()}
+              address={address}
+              web3Modal={web3Modal}
+              loadWeb3Modal={loadWeb3Modal}
+            />
+          </Route>
+          <Route exact path="/airdrop">
+            <NewAirdrop
               signer={userProvider.getSigner()}
               address={address}
               web3Modal={web3Modal}
@@ -368,8 +363,6 @@ function App(props) {
           </Route>
         </Switch>
       </BrowserRouter>
-
-      <ThemeSwitch />
 
       {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
@@ -448,21 +441,10 @@ const web3Modal = new Web3Modal({
 
 const logoutOfWeb3Modal = async () => {
   await web3Modal.clearCachedProvider();
-  setTimeout(() => {
-    window.location.reload();
-  }, 1);
 };
 
 window.ethereum &&
   window.ethereum.on("chainChanged", chainId => {
-    web3Modal.cachedProvider &&
-      setTimeout(() => {
-        window.location.reload();
-      }, 1);
-  });
-
-window.ethereum &&
-  window.ethereum.on("accountsChanged", accounts => {
     web3Modal.cachedProvider &&
       setTimeout(() => {
         window.location.reload();

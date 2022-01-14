@@ -1,6 +1,20 @@
 body {
-  margin: 0;
+  margin: 0; 
 }
+
+.background-image {
+  background-image: url(/background2.jpeg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center center;
+  filter: blur(30px);
+  z-index: -10;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
