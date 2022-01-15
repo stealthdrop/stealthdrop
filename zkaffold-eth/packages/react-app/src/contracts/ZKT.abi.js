@@ -159,11 +159,6 @@ module.exports = [
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
         "internalType": "uint256[2]",
         "name": "a",
         "type": "uint256[2]"
@@ -179,9 +174,9 @@ module.exports = [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[3]",
+        "internalType": "uint256[4]",
         "name": "signals",
-        "type": "uint256[3]"
+        "type": "uint256[4]"
       }
     ],
     "name": "claimTokens",
@@ -272,6 +267,19 @@ module.exports = [
   {
     "inputs": [],
     "name": "merkleRoot",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "messageClaimHash",
     "outputs": [
       {
         "internalType": "uint256",
@@ -392,9 +400,9 @@ module.exports = [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[3]",
+        "internalType": "uint256[4]",
         "name": "input",
-        "type": "uint256[3]"
+        "type": "uint256[4]"
       }
     ],
     "name": "verifyProof",

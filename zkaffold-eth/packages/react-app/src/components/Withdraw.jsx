@@ -9,8 +9,20 @@ import { Heading1 } from "./lolcss";
 import { useMemo } from "react";
 import { Address } from ".";
 import { ethers } from "ethers";
+import { useContractLoader } from "../hooks";
+import { Transactor } from "../helpers";
 
 const signText = "zk-airdrop";
+
+const exampleProof = [
+  [0, 1],
+  [
+    [2, 3],
+    [4, 5],
+  ],
+  [6, 7],
+  [8, 9, 10, 11],
+];
 
 async function postData(url = "", data = {}) {
   // Default options are marked with *
@@ -30,11 +42,15 @@ async function postData(url = "", data = {}) {
   return response; // parses JSON response into native JavaScript objects
 }
 
-export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider }) {
+export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider, provider }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
   const [proofStatus, setProofStatus] = useState("need to start");
   const [step, setStep] = useState(1);
+
+  const contracts = useContractLoader(provider);
+
+  const tx = Transactor(provider, null);
 
   const signMessage = async () => {
     console.log("signer", signer);
@@ -91,6 +107,21 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     }
     return isEligible(adr);
   }, [signature, address]);
+
+  const claim = async () => {
+    if (!proof) {
+      return;
+    }
+    const contract = contracts ? contracts["ZKT"] : "";
+    if (!contract) {
+      console.log("contract not found");
+      return;
+    }
+    console.log("claim: ", proof, contract);
+    const claimTokens = contract.connect(signer)["claimTokens"];
+    const returned = await tx(claimTokens(...proof));
+    console.log("returned", returned);
+  };
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
@@ -155,7 +186,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
         <Heading>5. Claim</Heading>
         <Collapse collapsed={step != 5}>
           <Tekst>Claim by sending a transaction on chain to the ERC-20 contract with the ZK Proof</Tekst>
-          <Bootoon>Claim Token</Bootoon>
+          <Bootoon onClick={claim}>Claim Token</Bootoon>
         </Collapse>
       </Box>
     </div>
@@ -177,8 +208,6 @@ const Collapse = styled.div`
 
   transition: all 0.2s ease;
 `;
-// max-height: ${p => (p.collapsed ? "0" : "100%")};
-// overflow: ${p => (p.collapsed ? "hidden" : "initial")};
 
 const Box = styled.div`
   margin: 4px;
@@ -212,21 +241,3 @@ const Bootoon = styled.button`
     transition: all 0.3s ease;
   }
 `;
-
-// const Bootoon = styled.button`
-//   background-image: linear-gradient(to right, rgb(1 134 218), rgb(182 49 167));
-//   border: 0;
-//   color: white;
-//   font-family: sans-serif;
-//   font-size: 18px;
-//   padding: 12px 32px;
-//   margin: 1rem;
-//   cursor: pointer;
-//   transition: all 0.3s ease;
-//   border-radius: 18px;
-
-//   :hover {
-//     box-shadow: rgba( 111,76,255, 0.5) 0px 0px 20px 0px;
-//     transition: all 0.3s ease;
-//   }
-// `;

@@ -286,7 +286,7 @@ function App(props) {
       {networkDisplay}
       <BrowserRouter>
         <Switch>
-          <Route exact path="/">
+          <Route exact path="/contract">
             {/*
                 🎛 this scaffolding is full of commonly used components
                 this <Contract/> component will automatically parse your ABI
@@ -312,13 +312,14 @@ function App(props) {
             />
             */}
           </Route>
-          <Route exact path="/withdraw">
+          <Route exact path="/">
             <Withdraw
               signer={userProvider.getSigner()}
               address={web3Modal?.cachedProvider ? address : null}
               web3Modal={web3Modal}
               loadWeb3Modal={loadWeb3Modal}
               mainnetProvider={mainnetProvider}
+              provider={userProvider}
             />
           </Route>
           <Route exact path="/airdrop">
