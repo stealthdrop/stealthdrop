@@ -9,7 +9,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract ZKT is ERC20, Verifier {
     uint256 public merkleRoot;
     mapping(uint256 => bool) public claimedNullifiers;
-
+    string messageClaimString;
+    uint256 messageClaimHash;
     event Claim(address indexed claimant, uint256 amount);
 
     /**
@@ -17,11 +18,13 @@ contract ZKT is ERC20, Verifier {
      * @param freeSupply The number of tokens to issue to the contract deployer.
      * @param airdropSupply The number of tokens to reserve for the airdrop.
      * @param _merkleRoot Merkle Root of the Airdrop addresses.
+     * @param _messageClaimString Message to be hashed, then signed, then used as a claim proof.
      */
     constructor(
         uint256 freeSupply,
         uint256 airdropSupply,
-        uint256 _merkleRoot
+        uint256 _merkleRoot,
+        string _messageClaimString,
     )
         public
         ERC20("Zero Knowledge Token", "ZKT")
@@ -29,6 +32,8 @@ contract ZKT is ERC20, Verifier {
         _mint(msg.sender, freeSupply);
         _mint(address(this), airdropSupply);
         merkleRoot = _merkleRoot;
+        messageClaimString = _messageClaimString;
+        messageClaimHash = keccak256(abi.encodePacked(messageClaimString)); // TODO is this value computed the same as the circuit?
     }
 
     /**
@@ -48,7 +53,7 @@ contract ZKT is ERC20, Verifier {
         require(signals[1] == merkleRoot, "Merkle Root does not match contract");
         console.log(uint256(msg.sender));
         require(signals[2] == uint256(msg.sender), "Sender address does not match zk input sender address");
-        require(signals[3] == "msghash", "Message hash invalid"); // TODO 
+        require(signals[3] == messageClaimHash, "Message hash invalid"); // TODO
         require(verifyProof(a, b, c, signals), "Invalid Proof");
         claimedNullifiers[signals[0]] = true;
         emit Claim(msg.sender, 10**decimals);
