@@ -11,10 +11,10 @@ import { Address } from ".";
 
 const signText = "ZK Airdrop: Sign this message to withdraw your ZK tokens";
 
-async function postData(url = "", data = {}, method) {
+async function postData(url = "", data = {}) {
   // Default options are marked with *
   const response = await fetch(url, {
-    method, // *GET, POST, PUT, DELETE, etc.
+    method: "POST", // *GET, POST, PUT, DELETE, etc.
     mode: "cors", // no-cors, *cors, same-origin
     cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
     credentials: "same-origin", // include, *same-origin, omit
@@ -30,11 +30,7 @@ async function postData(url = "", data = {}, method) {
 }
 
 export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider }) {
-  const [signature, setSignature] = useState({
-    sign:
-      "0x9fbeaf945f0ed82f2715e737e9a37f4e87c9402b0e66753f4068ecbaa5562adb391a1103d7345626ed64e74935586f743400aa2118b70cc2d4a71993b0fd7caa1c",
-    address: "0xc2D8cFCB9A7646496e4534c315FB53DCaC55061F",
-  });
+  const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
   const [proofStatus, setProofStatus] = useState("need to start");
   const [step, setStep] = useState(1);
@@ -54,13 +50,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     console.log("inputs", inputs);
     if (!inputs) return;
     // send api post request to generate proof
-    const returnData = await postData("/generate-proof", inputs, "POST");
-    setProofStatus("running");
+    const returnData = await postData("/generate-proof", inputs);
+    setProofStatus(returnData && returnData["id"] ? "running" : "error");
     const processId = returnData["id"];
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
-      const res = await postData("/result", { id: processId }, "GET");
+      const res = await postData("/result", { id: processId });
       if (res.status === 200) {
         setProof(res.body);
         clearInterval(intervalId);

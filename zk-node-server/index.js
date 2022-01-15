@@ -1,9 +1,8 @@
 const express = require("express");
 const snarkjs = require("snarkjs");
+const hash = require('object-hash');
 const fs = require("fs");
-const ffjavascript = require("ffjavascript");
 const { spawn } = require('child_process');
-const { application } = require("express");
 
 const app = express();
 
@@ -27,31 +26,34 @@ var currentProcessesRunning = new Set();
 var outputData = {};
 
 app.post("/generate_proof", function (req, res) {
-  const rawInput = req.body;
-  const input = rawInput;
+  const input = req.body;
+  const inputHash = hash(input);
+  const inputFileName = `inputs/${inputHash}.json`;
 
-  const randomNumber = Math.floor(Math.random() * 1000000000);
-  const randomFileName = `inputs/${randomNumber}.json`;
-  if (currentProcessesRunning.size > 3) {
-    res.status(400).send("Too many processes running");
+  if (currentProcessesRunning.has(inputHash) || !!outputData[inputHash]) {
+    res.json({ id: inputHash });
     return;
   }
 
-  fs.writeFileSync(randomFileName, JSON.stringify(input));
+  if (currentProcessesRunning.size > 3) {
+    res.status(404).send("Too many processes running");
+    return;
+  }
+
+  fs.writeFileSync(inputFileName, JSON.stringify(input));
 
   // spawn a child process to run the proof generation
-
-  const prover = spawn("node", ["prover.js", randomFileName], {
+  const prover = spawn("node", ["prover.js", inputFileName], {
     timeout: 1 * 60 * 1000,
   });
   if (!prover.pid) {
     res.status(500);
     return;
   }
-  currentProcessesRunning.add(randomNumber);
+  currentProcessesRunning.add(inputHash);
   prover.stdout.on("data", (data) => {
-    outputData[randomNumber] = data.toString();
-    console.log(`stdout: ${randomNumber} :  ${data}`);
+    outputData[inputHash] = data.toString();
+    console.log(`stdout: ${inputHash} :  ${data}`);
     console.log("outputData", outputData);
   });
 
@@ -60,11 +62,11 @@ app.post("/generate_proof", function (req, res) {
   });
 
   prover.on("close", (code) => {
-    currentProcessesRunning.delete(randomNumber);
+    currentProcessesRunning.delete(inputHash);
     console.log(`child process exited with code ${code}`);
   });
 
-  res.json({ id: randomNumber });
+  res.json({ id: inputHash });
 });
 
 app.get("/result", (req, res) => {
@@ -80,7 +82,7 @@ app.get("/result", (req, res) => {
   }
 });
 
-app.post("/generate_proof_wrong", async function (req, res) {
+app.post("/generate_proof_slow", async function (req, res) {
   const input = req.body["id"];
 
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(

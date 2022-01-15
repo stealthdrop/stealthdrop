@@ -1,7 +1,6 @@
 const snarkjs = require("snarkjs");
 const ffjavascript = require("ffjavascript");
 const fs = require("fs");
-const { mainModule } = require("process");
 
 const {stringifyBigInts: stringifyBigInts$3, unstringifyBigInts: unstringifyBigInts$1} = ffjavascript.utils;
 
