@@ -214,23 +214,24 @@ const Collapse = styled.div`
 
 const Box = styled.div`
   margin: 4px;
-  border: 2px solid #4ce90c69;
+  border: 0px solid #00000069;
   border-radius: 12px;
   padding: inherit;
-  background: #6773b38a;
+  background: #6666668a;
+  box-shadow: 3px 3px 3px black;
 `;
 
 const Heading = styled(Heading1)`
   font-weight: 600;
   text-align: left;
-  background: linear-gradient(to right, #4ce90c69, #4ce90c69);
+  background: linear-gradient(to right, #00000069, #00000069);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 `;
 
 const Bootoon = styled.button`
-  background-color: #4ce90c69;
-  border: 1px solid #4ce90c69;
+  background-color: #00000069;
+  border: 1px solid #00000069;
   border-radius: 18px;
   color: white;
   font-family: sans-serif;
@@ -240,7 +241,7 @@ const Bootoon = styled.button`
   cursor: pointer;
   transition: all 0.3s ease;
   :hover {
-    box-shadow: rgba(111, 76, 255, 0.5) 0px 0px 20px 0px;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px 0px;
     transition: all 0.3s ease;
   }
 `;

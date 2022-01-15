@@ -1,9 +1,9 @@
 body {
-  margin: 0; 
+  margin: 0;
 }
 
 .background-image {
-  background-image: url(/background2.jpeg);
+  background-image: url(/black.jpeg);
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
