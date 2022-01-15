@@ -42,7 +42,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
       <Box onClick={() => setStep(1)}>
-        <Heading>1. Connect Wallet</Heading>
+        <Heading>1. Connect Public Wallet</Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>Connect the account associated with airdrop</Tekst>
           <Bootoon
@@ -74,7 +74,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       </Box>
 
       <Box onClick={() => setStep(3)}>
-        <Heading>3. Connect Burner Wallet</Heading>
+        <Heading>3. Connect Anonymous Wallet</Heading>
 
         <Collapse collapsed={step != 3}>
           {!!address && address === signature?.address && (
