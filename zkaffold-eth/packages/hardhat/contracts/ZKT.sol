@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract ZKT is ERC20, Verifier {
     uint256 public merkleRoot;
     mapping(uint256 => bool) public claimedNullifiers;
-    string messageClaimString;
+    string public smessageClaimString;
     uint256 messageClaimHash;
     event Claim(address indexed claimant, uint256 amount);
 
