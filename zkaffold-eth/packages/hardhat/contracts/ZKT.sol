@@ -24,11 +24,8 @@ contract ZKT is ERC20, Verifier {
         uint256 freeSupply,
         uint256 airdropSupply,
         uint256 _merkleRoot,
-        string _messageClaimString,
-    )
-        public
-        ERC20("Zero Knowledge Token", "ZKT")
-    {
+        string _messageClaimString
+    ) public ERC20("Zero Knowledge Token", "ZKT") {
         _mint(msg.sender, freeSupply);
         _mint(address(this), airdropSupply);
         merkleRoot = _merkleRoot;
@@ -44,15 +41,25 @@ contract ZKT is ERC20, Verifier {
      * @param signals ZK merkle proof signals proving the claim is valid.
      */
     function claimTokens(
-          uint[2] memory a,
-          uint[2][2] memory b,
-          uint[2] memory c,
-          uint[4] memory signals) external {
+        uint256[2] memory a,
+        uint256[2][2] memory b,
+        uint256[2] memory c,
+        uint256[4] memory signals
+    ) external {
         // TODO indices
-        require(!claimedNullifiers[signals[0]], "Nullifier has already been claimed");
-        require(signals[1] == merkleRoot, "Merkle Root does not match contract");
+        require(
+            !claimedNullifiers[signals[0]],
+            "Nullifier has already been claimed"
+        );
+        require(
+            signals[1] == merkleRoot,
+            "Merkle Root does not match contract"
+        );
         console.log(uint256(msg.sender));
-        require(signals[2] == uint256(msg.sender), "Sender address does not match zk input sender address");
+        require(
+            signals[2] == uint256(msg.sender),
+            "Sender address does not match zk input sender address"
+        );
         require(signals[3] == messageClaimHash, "Message hash invalid"); // TODO
         require(verifyProof(a, b, c, signals), "Invalid Proof");
         claimedNullifiers[signals[0]] = true;
