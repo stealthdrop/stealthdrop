@@ -30,7 +30,11 @@ async function postData(url = "", data = {}, method) {
 }
 
 export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider }) {
-  const [signature, setSignature] = useState();
+  const [signature, setSignature] = useState({
+    sign:
+      "0x9fbeaf945f0ed82f2715e737e9a37f4e87c9402b0e66753f4068ecbaa5562adb391a1103d7345626ed64e74935586f743400aa2118b70cc2d4a71993b0fd7caa1c",
+    address: "0xc2D8cFCB9A7646496e4534c315FB53DCaC55061F",
+  });
   const [proof, setProof] = useState();
   const [proofStatus, setProofStatus] = useState("need to start");
   const [step, setStep] = useState(1);
@@ -46,7 +50,9 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     if (!signature) {
       return;
     }
-    const inputs = (await generateProofInputs()).json();
+    const inputs = await generateProofInputs(address, signature.sign);
+    console.log("inputs", inputs);
+    if (!inputs) return;
     // send api post request to generate proof
     const returnData = await postData("/generate-proof", inputs, "POST");
     setProofStatus("running");

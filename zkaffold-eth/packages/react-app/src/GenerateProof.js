@@ -32,7 +32,9 @@ function Uint8ArrayToHexString(u8a) {
 }
 
 export function generateProofInputs(address, signature) {
-  const [pathElements, pathIndex] = getPath(address);
+  const val = getPath(address);
+  if(!val) return null;
+  const [pathElements, pathIndex] = val;
   const { r, s } = parseSignature(signature);
   const rr = splitValue(r);
   const ss = splitValue(s);
@@ -46,5 +48,5 @@ export function generateProofInputs(address, signature) {
     root: merkleTreeRoot,
     claimerAddress: address,
   };
-
+  return input;
 }

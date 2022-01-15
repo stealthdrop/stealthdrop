@@ -271,6 +271,14 @@ function mimcSponge(inputs, nOutputs, rounds, key) {
  * @param x The number to modulo against LOCATION_ID_UB
  */
 function modPBigInt(x) {
+  // if hex do something
+  if(typeof x === 'string' && x[0] === '0' && x[1] === 'x') {
+    var y = bigInt(0);
+    for(var i = 2; i < x.length; i++) {
+      y = y.multiply(16).add(parseInt(x[i], 16));
+    }
+    x = y;
+  }
   let ret = bigInt(x).mod(p);
   if (ret.lesser(bigInt(0))) {
     ret = ret.add(p);
@@ -295,7 +303,6 @@ function modPBigIntNative(x) {
 const mimcWithRounds = (rounds, key) => (...inputs) =>
   mimcSponge(
     inputs.map(n => {
-      console.log(n);
       return modPBigInt(n);
     }),
     1,
