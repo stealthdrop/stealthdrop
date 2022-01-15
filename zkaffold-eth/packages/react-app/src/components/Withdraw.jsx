@@ -8,8 +8,9 @@ import { isEligible } from "../AirdropData";
 import { Heading1 } from "./lolcss";
 import { useMemo } from "react";
 import { Address } from ".";
+import { ethers } from "ethers";
 
-const signText = "ZK Airdrop: Sign this message to withdraw your ZK tokens";
+const signText = "zk-airdrop";
 
 async function postData(url = "", data = {}) {
   // Default options are marked with *
@@ -37,9 +38,21 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
 
   const signMessage = async () => {
     console.log("signer", signer);
+    console.log("public key", signer.publicKey);
     const msgTransaction = await signer.signMessage(signText);
     console.log("msgTransaction", msgTransaction);
+    console.log("public key", signer.publicKey);
     setSignature({ sign: msgTransaction, address });
+    const pk = ethers.utils.recoverPublicKey(
+      ethers.utils.arrayify(
+        ethers.utils.hashMessage(
+          ethers.utils.arrayify("0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de"),
+        ),
+      ),
+      msgTransaction,
+    );
+    console.log("pk", pk);
+    console.log("lol", ethers.utils.hashMessage("zk-airdrop"));
   };
 
   const generateZKProof = async () => {
@@ -141,6 +154,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       <Box onClick={() => setStep(5)}>
         <Heading>5. Claim</Heading>
         <Collapse collapsed={step != 5}>
+          <Tekst>Claim by sending a transaction on chain to the ERC-20 contract with the ZK Proof</Tekst>
           <Bootoon>Claim Token</Bootoon>
         </Collapse>
       </Box>

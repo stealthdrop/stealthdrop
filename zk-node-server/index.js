@@ -69,9 +69,9 @@ app.post("/generate_proof", function (req, res) {
   res.json({ id: inputHash });
 });
 
-app.get("/result", (req, res) => {
+app.post("/result", (req, res) => {
   console.log("outputData", outputData);
-  const id = req.body;
+  const id = req.body["id"];
   const result = outputData[id];
   if (result) {
     res.send(result);
