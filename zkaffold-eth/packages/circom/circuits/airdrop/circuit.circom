@@ -56,4 +56,4 @@ template Main(levels, n, k) {
     equality.out === 1;
 }
 
-component main {public [root, nullifierHash, publicClaimerAddress, msghash]} = Main(3, 86, 3);
+component main {public [root, nullifierHash, publicClaimerAddress, msghash]} = Main(10, 86, 3);

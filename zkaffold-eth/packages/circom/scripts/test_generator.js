@@ -99,7 +99,7 @@ async function generateTestCases() {
     const msghash_bigint = Uint8Array_to_bigint(keccak256(msg)); // Needs to be basicaly some public random hardcoded value
     const msghash = bigint_to_Uint8Array(msghash_bigint);
     const sig = await sign(msghash, bigint_to_Uint8Array(privkey), {
-      canonical: true, // counter-intuitive but correct for ETH
+      canonical: true,
       der: false,
     });
     const r = sig.slice(0, 32);
@@ -132,7 +132,7 @@ async function generateTestCases() {
     console.log('Private key: ', privkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(3, [], {hashFunction: mimcfs.mimcHash(0)});
+    const tree = new MerkleTree(10, [], {hashFunction: mimcfs.mimcHash(0)});
 
     const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
     // const pedersenHash = (data) =>
