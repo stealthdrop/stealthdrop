@@ -66,33 +66,29 @@ for (circuitName of circuitsList.split(",")) {
   try {
     execSync("circom circuit.circom --r1cs --wasm --sym", { stdio: "inherit" });
     execSync("npx snarkjs r1cs info circuit.r1cs", { stdio: "inherit" });
-    execSync("circom circuit.circom --r1cs --wasm --sym", { stdio: "inherit" });
     execSync("cp circuit_js/circuit.wasm circuit.wasm", { stdio: "inherit" });
-    execSync("npx snarkjs r1cs info circuit.r1cs", { stdio: "inherit" });
     execSync(
-      "npx snarkjs zkey new circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_20.ptau circuit_" +
-        circuitName +
-        ".zkey",
+      "npx snarkjs zkey new circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
       { stdio: "inherit" }
     );
-    if (deterministic) {
-      execSync(
-        "npx snarkjs zkey beacon circuit_" +
-          circuitName +
-          ".zkey circuit.zkey " +
-          process.env["beacon"] +
-          " 10",
-        { stdio: "inherit" }
-      );
-    } else {
-      execSync(
-        "npx snarkjs zkey contribute circuit_" +
-          circuitName +
-          ".zkey circuit.zkey " +
-          `-e="${Date.now()}"`,
-        { stdio: "inherit" }
-      );
-    }
+    // if (deterministic) {
+    //   execSync(
+    //     "npx snarkjs zkey beacon circuit_" +
+    //       circuitName +
+    //       ".zkey circuit.zkey " +
+    //       process.env["beacon"] +
+    //       " 10",
+    //     { stdio: "inherit" }
+    //   );
+    // } else {
+    //   execSync(
+    //     "npx snarkjs zkey contribute circuit_" +
+    //       circuitName +
+    //       ".zkey circuit.zkey " +
+    //       `-e="${Date.now()}"`,
+    //     { stdio: "inherit" }
+    //   );
+    // }
     execSync(
       "npx snarkjs zkey export verificationkey circuit.zkey keys/verification_key.json",
       { stdio: "inherit" }
