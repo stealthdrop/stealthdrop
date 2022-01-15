@@ -53,11 +53,3 @@ template Nullify(k) {
 
     nullifierHash <== mimc.outs[0];
 }
-
-template CheckReplay() {
-    signal input claimerAddress;
-    signal input claimerAddressMinusOne;
-
-    // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
-    claimerAddressMinusOne === claimerAddress - 1;
-}

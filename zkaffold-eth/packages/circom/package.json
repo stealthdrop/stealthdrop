@@ -13,7 +13,7 @@
     "circom": null,
     "circomlib": "^2.0.0",
     "dotenv": "^8.2.0",
-    "snarkjs": "^0.3.60",
+    "snarkjs": "^0.4.10",
     "tornado-circomlib": "git+https://github.com/tornadocash/circomlib.git#c372f14d324d57339c88451834bf2824e73bbdbc"
   },
   "scripts": {

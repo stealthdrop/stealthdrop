@@ -67,28 +67,30 @@ for (circuitName of circuitsList.split(",")) {
     execSync("circom circuit.circom --r1cs --wasm --sym", { stdio: "inherit" });
     execSync("npx snarkjs r1cs info circuit.r1cs", { stdio: "inherit" });
     execSync("cp circuit_js/circuit.wasm circuit.wasm", { stdio: "inherit" });
+    console.log("starting beefy boy");
     execSync(
-      "npx snarkjs zkey new circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
+      "node --max-old-space-size=614400 /root/zk-airdrop/zkaffold-eth/packages/circom/node_modules/.bin/snarkjs groth16 setup circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
       { stdio: "inherit" }
     );
+    console.log("ending beefy boy");
     // if (deterministic) {
     //   execSync(
-    //     "npx snarkjs zkey beacon circuit_" +
-    //       circuitName +
-    //       ".zkey circuit.zkey " +
+    //     "npx snarkjs zkey beacon circuit_0.zkey circuit.zkey " +
     //       process.env["beacon"] +
     //       " 10",
     //     { stdio: "inherit" }
     //   );
     // } else {
     //   execSync(
-    //     "npx snarkjs zkey contribute circuit_" +
-    //       circuitName +
-    //       ".zkey circuit.zkey " +
+    //     "npx snarkjs zkey contribute circuit_0.zkey circuit.zkey " +
     //       `-e="${Date.now()}"`,
     //     { stdio: "inherit" }
     //   );
     // }
+    execSync(
+      "npx snarkjs zkey verify circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
+      { stdio: "inherit" }
+    );
     execSync(
       "npx snarkjs zkey export verificationkey circuit.zkey keys/verification_key.json",
       { stdio: "inherit" }

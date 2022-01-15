@@ -45,46 +45,14 @@ async function generateTestCases() {
     BigInt('0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'),
     88549154299169935420064281163296845505587953610183896504176354567359434168161n,
     90388020393783788847120091912026443124559466591761394939671630294477859800601n,
-    110977009687373213104962226057480551605828725303063265716157300460694423838923n,
+    BigInt('0x4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7'),
   ];
   const claimerPrivkeys = [
     BigInt('0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'),
     88549154299169935420064281163296845505587953610183896504176354567359434168161n,
     90388020393783788847120091912026443124559466591761394939671630294477859800601n,
-    110977009687373213104962226057480551605828725303063265716157300460694423838923n,
+    BigInt('0x4d5db4107d237df6a3d58ee5f70ae63d73d7658d4026f2eefd2f204c81682cb7'),
   ];
-  const k = 3;
-
-  function parseSignature(signature) {
-    let r = signature.slice(0, 32);
-    let s = signature.slice(32, 64);
-    const v = 27 + Number(signature[64] >= 128);
-    if (typeof r == 'object') {
-      r = Uint8Array_to_bigint(r).toString();
-    }
-    if (typeof s == 'object') {
-      s = Uint8Array_to_bigint(s).toString();
-    }
-    return { r, s, v };
-  }
-  function split(m, n, k) {
-    // m is the string, k is the number of registers (parts)
-    const bytes_split = [];
-    const len = m.length;
-    const register_length = n;
-
-    // Pad with zeros
-    if (len > register_length * k) {
-      m = '0'.repeat(len - register_length * k) + m;
-      register_length++;
-    }
-
-    // Split into registers
-    for (let i = 0; i < k; i++) {
-      bytes_split.push(m.slice(register_length * i, register_length * (i + 1)));
-    }
-    return bytes_split;
-  }
 
   function bigint_to_tuple(x) {
       // 2 ** 86
@@ -124,17 +92,18 @@ async function generateTestCases() {
       return ret;
   }
 
-  for (var idx = 0; idx < 1; idx++) {
+  for (var idx = 0; idx < proverPrivkeys.length; idx++) {
     const privkey = proverPrivkeys[idx];
     const pubkey = Point.fromPrivateKey(privkey);
     const msg = 'zk-airdrop';
     const msghash_bigint = Uint8Array_to_bigint(keccak256(msg)); // Needs to be basicaly some public random hardcoded value
     const msghash = bigint_to_Uint8Array(msghash_bigint);
     const sig = await sign(msghash, bigint_to_Uint8Array(privkey), {
-      canonical: true,
+      canonical: true, // counter-intuitive but correct for ETH
       der: false,
     });
-    const { r, s, v } = parseSignature(sig); //TODO maybe just sig
+    const r = sig.slice(0, 32);
+    const s = sig.slice(32, 64);
     var r_bigint = Uint8Array_to_bigint(r);
     var s_bigint = Uint8Array_to_bigint(s);
     var r_array = bigint_to_array(86, 3, r_bigint);
@@ -143,6 +112,9 @@ async function generateTestCases() {
     test_cases.push([privkey, msghash_bigint, sig, pubkey.x, pubkey.y]);
     console.log("pubkey x", pubkey.x);
     console.log("pubkey y", pubkey.y);
+    console.log("s", s_bigint);
+    console.log("s", s_array);
+    console.log("the thing", bigint_to_array(86, 3, 57896044618658097711785492504343953926418782139537452191302581570759080747168n));
 
     // Get address from public key: https://ethereum.stackexchange.com/questions/29476/generating-an-address-from-a-public-key
     // let fullPubKey = keccak256(pubkey.x.toString() + pubkey.y.toString());
@@ -160,7 +132,7 @@ async function generateTestCases() {
     console.log('Private key: ', privkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(1, [], {hashFunction: mimcfs.mimcHash(0)});
+    const tree = new MerkleTree(3, [], {hashFunction: mimcfs.mimcHash(0)});
 
     const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
     // const pedersenHash = (data) =>
@@ -195,8 +167,8 @@ async function generateTestCases() {
           pubkey: [bigint_to_tuple(pubkey.x).map(x => x.toString()), bigint_to_tuple(pubkey.y).map(x => x.toString())],
           pathElements: pathElements,
           pathIndices: pathIndices,
-          claimerAddress: hexStringToBigInt(hexAddress).toString(10),
-          claimerAddressMinusOne: (hexStringToBigInt(hexAddress) - BigInt(1)).toString(10),
+          publicClaimerAddress: hexStringToBigInt(hexAddress).toString(10),
+          privateClaimerAddress: hexStringToBigInt(hexAddress).toString(10),
           nullifierHash: nullifierHash.toString(),
         },
         null,

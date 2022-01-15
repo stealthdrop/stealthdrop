@@ -2,6 +2,8 @@ pragma circom 2.0.2;
 
 include "../merkle/withdraw.circom";
 include "../secp256k1/ecdsa.circom";
+include "../secp256k1/bigint.circom";
+include "../../node_modules/circomlib/circuits/comparators.circom";
 
 template Main(levels, n, k) {
     signal input root;
@@ -12,8 +14,8 @@ template Main(levels, n, k) {
     signal input pathElements[levels];
     signal input pathIndices[levels];
 
-    signal input claimerAddress;
-    signal input claimerAddressMinusOne;
+    signal input publicClaimerAddress;
+    signal input privateClaimerAddress;
     signal input nullifierHash;
 
     component sigVerify = ECDSAVerify(n, k);
@@ -41,9 +43,17 @@ template Main(levels, n, k) {
     }
     nullifierHash === nullifier.nullifierHash;
 
-    component replay = CheckReplay();
-    replay.claimerAddress <== claimerAddress;
-    replay.claimerAddressMinusOne <== claimerAddressMinusOne;    
+    component canoniCheck = BigLessThan(n, k);
+    for (var i = 0;i < k;i++) canoniCheck.a[i] <== s[i];
+    canoniCheck.b[0] <== 43899669914813478955851936;
+    canoniCheck.b[1] <== 77371252455333472729943390;
+    canoniCheck.b[2] <== 9671406556917033397649407;
+    canoniCheck.out === 1;
+
+    component equality = IsEqual();
+    equality.in[0] <== publicClaimerAddress;
+    equality.in[1] <== privateClaimerAddress;
+    equality.out === 1;
 }
 
-component main = Main(1, 86, 3);
+component main {public [root, nullifierHash, publicClaimerAddress, msghash]} = Main(3, 86, 3);
