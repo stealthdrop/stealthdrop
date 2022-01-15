@@ -81,8 +81,8 @@ function App(props) {
   const gasPrice = useGasPrice(targetNetwork, "fast");
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProvider = useUserProvider(injectedProvider, localProvider);
-  const address = useUserAddress(userProvider);
 
+  const address = useUserAddress(userProvider);
   // You can warn the user if you would like them to be on a specific network
   let localChainId = localProvider && localProvider._network && localProvider._network.chainId;
   let selectedChainId = userProvider && userProvider._network && userProvider._network.chainId;
@@ -271,6 +271,13 @@ function App(props) {
     );
   }
 
+  window.ethereum &&
+    window.ethereum.on("accountsChanged", async accounts => {
+      console.log("account changed", accounts);
+      const provider = await web3Modal.connect();
+      setInjectedProvider(new Web3Provider(provider));
+    });
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -307,9 +314,10 @@ function App(props) {
           <Route exact path="/withdraw">
             <Withdraw
               signer={userProvider.getSigner()}
-              address={address}
+              address={web3Modal?.cachedProvider ? address : null}
               web3Modal={web3Modal}
               loadWeb3Modal={loadWeb3Modal}
+              mainnetProvider={mainnetProvider}
             />
           </Route>
           <Route exact path="/airdrop">
@@ -328,43 +336,10 @@ function App(props) {
               price={price}
             />
           </Route>
-          <Route path="/exampleui">
-            <ExampleUI
-              address={address}
-              userProvider={userProvider}
-              mainnetProvider={mainnetProvider}
-              localProvider={localProvider}
-              yourLocalBalance={yourLocalBalance}
-              price={price}
-              tx={tx}
-              writeContracts={writeContracts}
-              readContracts={readContracts}
-              purpose={purpose}
-              setPurposeEvents={setPurposeEvents}
-            />
-          </Route>
-          <Route path="/mainnetdai">
-            <Contract
-              name="DAI"
-              customContract={mainnetDAIContract}
-              signer={userProvider.getSigner()}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer={"https://etherscan.io/"}
-            />
-          </Route>
-          <Route path="/subgraph">
-            <Subgraph
-              subgraphUri={props.subgraphUri}
-              tx={tx}
-              writeContracts={writeContracts}
-              mainnetProvider={mainnetProvider}
-            />
-          </Route>
         </Switch>
       </BrowserRouter>
 
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options */}
+      {/* 👨‍💼 Your account is in the top right with a wallet at connect options
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <Account
           address={address}
@@ -377,11 +352,10 @@ function App(props) {
           logoutOfWeb3Modal={logoutOfWeb3Modal}
           blockExplorer={blockExplorer}
         />
-        {faucetHint}
-      </div>
+      </div> */}
 
       {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+      {/* <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
             <Ramp price={price} address={address} networks={NETWORKS} />
@@ -409,7 +383,6 @@ function App(props) {
         <Row align="middle" gutter={[4, 4]}>
           <Col span={24}>
             {
-              /*  if the local provider has a signer, let's show the faucet:  */
               faucetAvailable ? (
                 <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider} />
               ) : (
@@ -418,7 +391,7 @@ function App(props) {
             }
           </Col>
         </Row>
-      </div>
+      </div> */}
     </div>
   );
 }

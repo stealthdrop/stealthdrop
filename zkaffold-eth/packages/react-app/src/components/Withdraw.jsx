@@ -1,4 +1,3 @@
-import { Button } from "antd";
 import stringify from "fast-json-stable-stringify";
 import styled from "styled-components/macro";
 
@@ -6,18 +5,16 @@ import React from "react";
 import { useState } from "react";
 import { generateProof } from "../GenerateProof";
 import { isEligible } from "../AirdropData";
-import { Heading1, MainHeading } from "./lolcss";
+import { Heading1 } from "./lolcss";
+import { useMemo } from "react";
+import { Address } from ".";
 
 const signText = "ZK Airdrop: Sign this message to withdraw your ZK tokens";
 
-// type steps = "connect" | "eligibility" | "sign" | "burner" | "proof" | "claim";
-
-export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal }) {
+export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider }) {
   const [signature, setSignature] = useState();
-  const [eligible, setEligible] = useState();
   const [proof, setProof] = useState();
   const [step, setStep] = useState(1);
-
 
   const signMessage = async () => {
     console.log("signer", signer);
@@ -34,87 +31,100 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal }) 
     setProof({ a: 0, b: 0, c: 0, merkleRoot: "0x239839aBcd", nullifierHash: "lol" });
   };
 
-  const checkEligibility = () => {
-    // TODO: Check if already spent
-    setEligible({ elibibility: isEligible(address), address: address });
-  };
+  const eligibility = useMemo(() => {
+    const adr = signature?.address || address;
+    if (!adr) {
+      return null;
+    }
+    return isEligible(adr);
+  }, [signature, address]);
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
       <Box onClick={() => setStep(1)}>
-        <Heading>Connect Wallet</Heading>
-        <Collapse  collapsed={step != 1}>
-        <Bootoon
-          key="loginbutton"
-          style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
-          shape="round"
-          size="large"
-          onClick={loadWeb3Modal}
-          disabled={web3Modal && web3Modal.cachedProvider}
-        >
-          {web3Modal && web3Modal.cachedProvider ? "Connected!" : "Connect"}
-        </Bootoon>
+        <Heading>1. Connect Wallet</Heading>
+        <Collapse collapsed={step != 1}>
+          <Tekst>Connect the account associated with airdrop</Tekst>
+          <Bootoon
+            key="loginbutton"
+            style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
+            shape="round"
+            size="large"
+            onClick={loadWeb3Modal}
+            disabled={!!address}
+          >
+            {web3Modal && web3Modal.cachedProvider ? "Connected!" : "Connect"}
+          </Bootoon>
+          {address && (
+            <Tekst>
+              Connected to{" "}
+              {<Address color={tekstcolor} size={teskstsize} address={address} ensProvider={mainnetProvider} />}
+            </Tekst>
+          )}
+          {eligibility !== null && <Tekst>{eligibility ? "Eligibile ✅" : "Not Eligibile :("}</Tekst>}
         </Collapse>
       </Box>
       <Box onClick={() => setStep(2)}>
-        <Heading>Check Eligibilty</Heading>
-        <Collapse  collapsed={step != 2}>
-        <Bootoon onClick={checkEligibility}>Check Eligibility</Bootoon>
-        <div>{eligible?.elibibility ? "Eligibile!" : eligible?.elibibility === false ? "Not Eligibile :(" : ""}</div>
+        <Heading>2. Sign Message</Heading>
+        <Collapse collapsed={step != 2}>
+          <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
+            {!!signature?.sign ? "Signed!" : "Generate Signed Message"}
+          </Bootoon>
         </Collapse>
       </Box>
 
       <Box onClick={() => setStep(3)}>
-        <Heading>Sign Message</Heading>
-        <Collapse  collapsed={step != 3}>
-        <Bootoon onClick={signMessage}>Generate Signed Message</Bootoon>
-        <div>Signed Message: {signature?.sign}</div>
+        <Heading>3. Connect Burner Wallet</Heading>
+
+        <Collapse collapsed={step != 3}>
+          {!!address && address === signature?.address && (
+            <Tekst>
+              Right now you are connected to your public wallet. Switch to a new wallet to preserve anonymity
+            </Tekst>
+          )}
+          {!!address && address !== signature?.address && (
+            <Tekst>You are now connected to a seperate account. The tokens will be sent to this account.</Tekst>
+          )}
+          {!address && <Tekst>Not connected to any account. Switch your account through your wallet</Tekst>}
         </Collapse>
       </Box>
 
       <Box onClick={() => setStep(4)}>
-        <Heading>Connect Burner Wallet</Heading>
-        <Collapse  collapsed={step != 4}>
-        <div>Switch mallet to the account which you want to recieve your token in</div>
-        <Bootoon
-          key="loginbutton"
-          style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
-          shape="round"
-          size="large"
-          onClick={loadWeb3Modal}
-        >
-          Connect Burner Account
-        </Bootoon>
+        <Heading>4. Prove Ownership</Heading>
+        <Collapse collapsed={step != 4}>
+          <Tekst>Generate Proof to withdraw to {address}</Tekst>
+          <Bootoon onClick={generateZKProof}>Generate</Bootoon>
+          <Tekst>Proof: {stringify(proof)}</Tekst>
         </Collapse>
       </Box>
 
       <Box onClick={() => setStep(5)}>
-        <Heading>Prove Ownership</Heading>
-        <Collapse  collapsed={step != 5}>
-        <div>Generate Proof to withdraw to {address}</div>
-        <Bootoon onClick={generateZKProof}>Generate</Bootoon>
-        <div>Proof: {stringify(proof)}</div>
-        </Collapse>
-      </Box>
-
-      <Box onClick={() => setStep(6)}>
-        <Heading>Claim</Heading>
-        <Collapse  collapsed={step != 6}>
-        <Bootoon>Claim Token</Bootoon>
+        <Heading>5. Claim</Heading>
+        <Collapse collapsed={step != 5}>
+          <Bootoon>Claim Token</Bootoon>
         </Collapse>
       </Box>
     </div>
   );
 }
 
-const Collapse = styled.div`
-  max-height: ${p => p.collapsed ? '0' : '100%'};
-  opacity: ${p => (p.collapsed ? 0 : 1)};
-  overflow: ${p => (p.collapsed ? 'hidden' : 'initial')};
-  transition: all 0.5s ease;
-`
-// display: ${p => p.collapsed ? 'none' : 'block'};
+const tekstcolor = "#bfbfbf";
+const teskstsize = "18px";
 
+const Tekst = styled.div`
+  display: block;
+  font-size: ${teskstsize};
+  color: ${tekstcolor};
+  font-weight: 400;
+`;
+
+const Collapse = styled.div`
+  display: ${p => (p.collapsed ? "none" : "block")};
+
+  transition: all 0.2s ease;
+`;
+// max-height: ${p => (p.collapsed ? "0" : "100%")};
+// overflow: ${p => (p.collapsed ? "hidden" : "initial")};
 
 const Box = styled.div`
   margin: 4px;
@@ -130,9 +140,9 @@ const Heading = styled(Heading1)`
   background: linear-gradient(to right, #4ce90c69, #4ce90c69);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  `;
+`;
 
-  const Bootoon = styled.button`
+const Bootoon = styled.button`
   background-color: #4ce90c69;
   border: 1px solid #4ce90c69;
   border-radius: 18px;
@@ -144,11 +154,10 @@ const Heading = styled(Heading1)`
   cursor: pointer;
   transition: all 0.3s ease;
   :hover {
-    box-shadow: rgba( 111,76,255, 0.5) 0px 0px 20px 0px;
+    box-shadow: rgba(111, 76, 255, 0.5) 0px 0px 20px 0px;
     transition: all 0.3s ease;
   }
 `;
-
 
 // const Bootoon = styled.button`
 //   background-image: linear-gradient(to right, rgb(1 134 218), rgb(182 49 167));
