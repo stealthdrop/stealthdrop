@@ -1,6 +1,7 @@
+/* global BigInt */
 import { getPath, merkleTreeRoot } from "./AirdropData";
 import { mimcHash } from "./mimc";
-import bigInt, { BigInteger } from 'big-integer';
+import bigInt from 'big-integer';
 import { ethers } from "ethers";
 
 const fromHexString = (hexString) =>
@@ -13,8 +14,8 @@ const hexStringTobigInt = (hexString) => {
 
 // bigendian
 function bigint_to_Uint8Array(x) {
-  var ret = new Uint8Array(32);
-  for (var idx = 31; idx >= 0; idx--) {
+  var ret = new Uint8Array(64);
+  for (var idx = 63; idx >= 0; idx--) {
     ret[idx] = Number(x % 256n);
     x = x / 256n;
   }
@@ -26,13 +27,14 @@ function Uint8Array_to_bigint(x) {
   var ret = 0n;
   for (var idx = 0; idx < x.length; idx++) {
     ret = ret * 256n;
-    ret = ret + bigInt(x[idx]);
+    ret = ret + BigInt(x[idx]);
   }
   return ret;
 }
 
 function bigint_to_tuple(x) {
     // 2 ** 86
+    x = BigInt(x);
     let mod = 77371252455336267181195264n;
     let ret = [0n, 0n, 0n];
 
@@ -61,24 +63,26 @@ function bigint_to_array(n, k, x) {
 
 function parseSignature(sig) {
     const sig_arr = bigint_to_Uint8Array(hexStringTobigInt(sig));
+    console.log("sig stuff", sig_arr.length, sig_arr);
     const r = sig_arr.slice(0, 32);
     const s = sig_arr.slice(32, 64);
     var r_bigint = Uint8Array_to_bigint(r);
     var s_bigint = Uint8Array_to_bigint(s);
     var r_array = bigint_to_array(86, 3, r_bigint);
     var s_array = bigint_to_array(86, 3, s_bigint);
-    return {r_array, s_array};
+    return [r_array, s_array];
 }
 
 function parsePubkey(pk) {
     const sliced_pk = pk.slice(4);
-    const pk_x_hex = pk.slice(0, 64);
-    const pk_y_hex = pk.slice(64, 128);
+    const pk_x_hex = sliced_pk.slice(0, 64);
+    const pk_y_hex = sliced_pk.slice(64, 128);
     const pk_x_bigint = hexStringTobigInt(pk_x_hex);
     const pk_y_bigint = hexStringTobigInt(pk_y_hex);
     const pk_x_arr = bigint_to_array(86, 3, pk_x_bigint);
     const pk_y_arr = bigint_to_array(86, 3, pk_y_bigint);
-    return { pk_x_arr, pk_y_arr }
+    console.log("pk stuff", pk, pk_x_arr, pk_y_arr);
+    return [ pk_x_arr, pk_y_arr ];
 }
 
 
@@ -86,8 +90,9 @@ export function generateProofInputs(address, signature, proverPubkey, claimerAdd
   const val = getPath(address);
   if(!val) return null;
   const [root, pathElements, pathIndices] = val;
-  const { r_array, s_array } = parseSignature(signature);
-  const { pubkey_x, pubkey_y } = parsePubkey(proverPubkey);
+  console.log("signature", signature);
+  const [ r_array, s_array ] = parseSignature(signature);
+  const [ pubkey_x, pubkey_y ] = parsePubkey(proverPubkey);
 
   const msghash_bigint = hexStringTobigInt(msghash);
   var msghash_array = bigint_to_array(86, 3, msghash_bigint);
@@ -95,13 +100,13 @@ export function generateProofInputs(address, signature, proverPubkey, claimerAdd
   const nullifierHash = mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
 
   const input = {
-    root: root,
-    pathElements: pathElements,
+    root: root.toString(),
+    pathElements: pathElements.map(x => x.toString()),
     pathIndices: pathIndices,
     r: r_array.map(x => x.toString()),
     s: s_array.map(x => x.toString()),
     msghash: msghash_array.map(x => x.toString()),
-    pubkey: [bigint_to_tuple(pubkey_x).map(x => x.toString()), bigint_to_tuple(pubkey_y).map(x => x.toString())],
+    pubkey: [pubkey_x.map(x => x.toString()), pubkey_y.map(x => x.toString())],
     publicClaimerAddress: hexStringTobigInt(claimerAddress).toString(10),
     privateClaimerAddress: hexStringTobigInt(claimerAddress).toString(10),
     nullifierHash: nullifierHash.toString(),

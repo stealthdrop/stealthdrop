@@ -13,6 +13,7 @@ import { useContractLoader } from "../hooks";
 import { Transactor } from "../helpers";
 
 const signText = "zk-airdrop";
+const signTextHash = "0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de";
 
 const exampleProof = [
   [0, 1],
@@ -54,28 +55,30 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
 
   const signMessage = async () => {
     console.log("signer", signer);
-    console.log("public key", signer.publicKey);
     const msgTransaction = await signer.signMessage(signText);
     console.log("msgTransaction", msgTransaction);
-    console.log("public key", signer.publicKey);
-    setSignature({ sign: msgTransaction, address });
-    const pk = ethers.utils.recoverPublicKey(
-      ethers.utils.arrayify(
-        ethers.utils.hashMessage(
-          ethers.utils.arrayify("0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de"),
-        ),
-      ),
-      msgTransaction,
-    );
-    console.log("pk", pk);
-    console.log("lol", ethers.utils.hashMessage("zk-airdrop"));
+    const msgHash = ethers.utils.hashMessage(signText);
+    const publicKey = ethers.utils.recoverPublicKey(msgHash, ethers.utils.arrayify(msgTransaction));
+    // const pk = ethers.utils.recoverPublicKey(
+    //   ethers.utils.arrayify("0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de"),
+    //   msgTransaction,
+    // );
+    setSignature({ sign: msgTransaction, address, publicKey });
+    console.log("hash", msgHash);
+    console.log("verify", ethers.utils.verifyMessage(signText, msgTransaction));
   };
 
   const generateZKProof = async () => {
     if (!signature) {
       return;
     }
-    const inputs = await generateProofInputs(address, signature.sign);
+    const inputs = await generateProofInputs(
+      signature.address,
+      signature.sign,
+      signature.publicKey,
+      address,
+      ethers.utils.hashMessage(signText),
+    );
     console.log("inputs", inputs);
     if (!inputs) return;
     // send api post request to generate proof
