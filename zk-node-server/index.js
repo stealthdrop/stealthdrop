@@ -1,50 +1,87 @@
-const express = require('express');
+const express = require("express");
 const snarkjs = require("snarkjs");
-const ffjavascript = require('ffjavascript');
+const fs = require("fs");
+const ffjavascript = require("ffjavascript");
+const { spawn } = require('child_process');
+const { application } = require("express");
 
 const app = express();
 
-app.use(express.static('public'));
+app.use(express.static("public"));
 
 app.use(express.json());
 
-const {stringifyBigInts: stringifyBigInts$3, unstringifyBigInts: unstringifyBigInts$1} = ffjavascript.utils;
+app.get("/", (req, res) => res.send("Im a teapot"));
 
-// copy pasta p256 from snarkjs cli.cjs line 6726
-function p256(n) {
-  let nstr = n.toString(16);
-  while (nstr.length < 64) nstr = "0"+nstr;
-  nstr = `0x${nstr}`;
-  return nstr;
-}
+app.get("/slow", (req, res) => {
+  // run somethign really slow here and see what happens
+  var sum = 0;
+  for (var i = 0; i < 10 ** 10; i++) {
+    sum += i * (i - 1) * (i * 2);
+  }
+  res.send(`${sum}`);
+});
 
-async function genSolidityCalldata(publicName, proofName) {
-  const pub = unstringifyBigInts$1(publicName);
-  const proof = unstringifyBigInts$1(proofName);
+var currentProcessesRunning = new Set();
 
-  let inputs = [];
-  for (let i=0; i<pub.length; i++) {
-      inputs.push(p256(pub[i]));
+var outputData = {};
+
+app.post("/generate_proof", function (req, res) {
+  const rawInput = req.body;
+  const input = rawInput;
+
+  const randomNumber = Math.floor(Math.random() * 1000000000);
+  const randomFileName = `inputs/${randomNumber}.json`;
+  if (currentProcessesRunning.size > 3) {
+    res.status(400).send("Too many processes running");
+    return;
   }
 
-  if ((typeof proof.protocol === "undefined") || (proof.protocol != "groth16")) {
-    throw new Error("InvalidProof");
+  fs.writeFileSync(randomFileName, JSON.stringify(input));
+
+  // spawn a child process to run the proof generation
+
+  const prover = spawn("node", ["prover.js", randomFileName], {
+    timeout: 1 * 60 * 1000,
+  });
+  if (!prover.pid) {
+    res.status(500);
+    return;
   }
+  currentProcessesRunning.add(randomNumber);
+  prover.stdout.on("data", (data) => {
+    outputData[randomNumber] = data.toString();
+    console.log(`stdout: ${randomNumber} :  ${data}`);
+    console.log("outputData", outputData);
+  });
 
-  let S = {
-    'pi_a': [p256(proof.pi_a[0]), p256(proof.pi_a[1])],
-    'pi_b': [[p256(proof.pi_b[0][1]), p256(proof.pi_b[0][0])], [p256(proof.pi_b[1][1]), p256(proof.pi_b[1][0])]],
-    'pi_c': [p256(proof.pi_c[0]), p256(proof.pi_c[1])],
-    'inputs': inputs,
-  };
+  prover.stderr.on("data", (data) => {
+    console.error(`stderr: ${data}`);
+  });
 
-  return S;
-}
+  prover.on("close", (code) => {
+    currentProcessesRunning.delete(randomNumber);
+    console.log(`child process exited with code ${code}`);
+  });
 
-app.get('/', (req, res) => res.send('Im a teapot'));
+  res.json({ id: randomNumber });
+});
 
-app.post('/generate_proof', async function (req, res) {
-  const input = req.body;
+app.get("/result", (req, res) => {
+  console.log("outputData", outputData);
+  const id = req.body;
+  const result = outputData[id];
+  if (result) {
+    res.send(result);
+  } else if (currentProcessesRunning.has(id)) {
+    res.status(400).send("Process still running");
+  } else {
+    res.status(404).send("Not found");
+  }
+});
+
+app.post("/generate_proof_wrong", async function (req, res) {
+  const input = req.body["id"];
 
   const { proof, publicSignals } = await snarkjs.groth16.fullProve(
     input,
@@ -55,8 +92,10 @@ app.post('/generate_proof', async function (req, res) {
   const genCalldata = await genSolidityCalldata(publicSignals, proof);
 
   res.json(genCalldata);
-})
+});
 
 const port = process.env.PORT || 3000;
 
-app.listen(port, () => console.log(`Server running on ${port}, http://localhost:${port}`));
+app.listen(port, () =>
+  console.log(`Server running on ${port}, http://localhost:${port}`)
+);

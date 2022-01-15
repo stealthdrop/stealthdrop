@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
   },
   extends: ["airbnb", 'plugin:prettier/recommended', 'prettier/react'],
-  plugins: ["babel"],
+  plugins: ["babel",  "@babel/plugin-syntax-bigint"],
   rules: {
     "prettier/prettier": ["error"],
     "import/extensions": [

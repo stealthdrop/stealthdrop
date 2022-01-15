@@ -3,7 +3,7 @@ import styled from "styled-components/macro";
 
 import React from "react";
 import { useState } from "react";
-import { generateProof } from "../GenerateProof";
+import { generateProofInputs } from "../GenerateProof";
 import { isEligible } from "../AirdropData";
 import { Heading1 } from "./lolcss";
 import { useMemo } from "react";
@@ -11,9 +11,28 @@ import { Address } from ".";
 
 const signText = "ZK Airdrop: Sign this message to withdraw your ZK tokens";
 
+async function postData(url = "", data = {}, method) {
+  // Default options are marked with *
+  const response = await fetch(url, {
+    method, // *GET, POST, PUT, DELETE, etc.
+    mode: "cors", // no-cors, *cors, same-origin
+    cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+    credentials: "same-origin", // include, *same-origin, omit
+    headers: {
+      "Content-Type": "application/json",
+      // 'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    redirect: "follow", // manual, *follow, error
+    referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+    body: JSON.stringify(data), // body data type must match "Content-Type" header
+  });
+  return response; // parses JSON response into native JavaScript objects
+}
+
 export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
+  const [proofStatus, setProofStatus] = useState("need to start");
   const [step, setStep] = useState(1);
 
   const signMessage = async () => {
@@ -27,8 +46,27 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     if (!signature) {
       return;
     }
-    const lol = await generateProof();
-    setProof({ a: 0, b: 0, c: 0, merkleRoot: "0x239839aBcd", nullifierHash: "lol" });
+    const inputs = (await generateProofInputs()).json();
+    // send api post request to generate proof
+    const returnData = await postData("/generate-proof", inputs, "POST");
+    setProofStatus("running");
+    const processId = returnData["id"];
+    console.log("processId", processId);
+
+    const intervalId = setInterval(async () => {
+      const res = await postData("/result", { id: processId }, "GET");
+      if (res.status === 200) {
+        setProof(res.body);
+        clearInterval(intervalId);
+        setProofStatus("found");
+      } else if (res.status === 400) {
+        setProofStatus("running");
+      } else {
+        console.log("error", res);
+        clearInterval(intervalId);
+        setProofStatus("error");
+      }
+    }, 10000);
   };
 
   const eligibility = useMemo(() => {
@@ -94,7 +132,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
         <Collapse collapsed={step != 4}>
           <Tekst>Generate Proof to withdraw to {address}</Tekst>
           <Bootoon onClick={generateZKProof}>Generate</Bootoon>
-          <Tekst>Proof: {stringify(proof)}</Tekst>
+          <Tekst>Proof: {proofStatus}</Tekst>
         </Collapse>
       </Box>
 

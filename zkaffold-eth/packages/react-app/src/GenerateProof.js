@@ -1,5 +1,5 @@
 import { getPath, merkleTreeRoot } from "./AirdropData";
-import { mimcHash } from "zkp-utils";
+import mimcHash from "./mimc";
 
 function hexStringToBytes(hexString) {
   // skip first 2 chars (0x)
@@ -31,8 +31,8 @@ function Uint8ArrayToHexString(u8a) {
   return Array.from(u8a, c => c.toString(16).padStart(2, "0")).join("");
 }
 
-export function generateProof(address, signature) {
-  const [pathElements, pathIndex] = getPath(mimcHash(address));
+export function generateProofInputs(address, signature) {
+  const [pathElements, pathIndex] = getPath(address);
   const { r, s } = parseSignature(signature);
   const rr = splitValue(r);
   const ss = splitValue(s);
@@ -46,4 +46,5 @@ export function generateProof(address, signature) {
     root: merkleTreeRoot,
     claimerAddress: address,
   };
+
 }
