@@ -1,8 +1,6 @@
 import MerkleTree from "fixed-merkle-tree";
 import { mimcHash } from "./mimc";
 
-export const merkleTreeRoot = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
 const merkleTreeLevels = 4;
 
 export const getPath = address => {
@@ -11,7 +9,7 @@ export const getPath = address => {
   let index = merkleTreeLeaves.findIndex(leaf => leaf === address);
   if(index < 0) return null;
   const { pathElements, pathIndex } = merkleTree.path(index);
-  return [pathElements, pathIndex];
+  return [merkleTree.root(), pathElements, pathIndex];
 };
 
 export const isEligible = address => {

@@ -1,6 +1,7 @@
 const snarkjs = require("snarkjs");
 const ffjavascript = require("ffjavascript");
 const fs = require("fs");
+const wc = require("./witness_calculator.js");
 
 const {
   stringifyBigInts: stringifyBigInts$3,
@@ -41,23 +42,35 @@ async function genSolidityCalldata(publicName, proofName) {
   return S;
 }
 
+const generateWitness = async (inputs, witness_file) => {
+  console.log("inside async starting");
+  const buffer = fs.readFileSync("./circuit.wasm");
+  console.log("got buff");
+  const witnessCalculator = await wc(buffer);
+  console.log("got witnessCalculator");
+  const buff = await witnessCalculator.calculateWTNSBin(inputs, 0);
+  fs.writeFileSync(witness_file, buff);
+  console.log("inside async exiting");
+}
+
 const main = async () => {
-  //   console.log("LOL");
   const inputFile = process.argv[2];
   //   console.log("inputFile", inputFile);
   const rawInput = fs.readFileSync(inputFile, "utf8");
   const input = JSON.parse(rawInput);
+  const witness_file = inputFile + '_witness';
+  console.log("witness starting");
 
-  const { proof, publicSignals } = await snarkjs.groth16.fullProve(
-    input,
-    "./circuit.wasm",
-    "./circuit.zkey"
+  await generateWitness(input, witness_file);
+  console.log("outside await exiting");
+  const { proof, publicSignals } = await snarkjs.groth16.prove(
+    "./circuit.zkey", witness_file
   );
+  console.log("proven");
+
 
   const genCalldata = await genSolidityCalldata(publicSignals, proof);
-  //     const randomNumber = Math.floor(Math.random() * 1000000000);
-  //   console.log(randomNumber.toString());
-  console.log(JSON.stringify(genCalldata));
+  process.stderr.write(JSON.stringify(genCalldata));
 };
 
 main();

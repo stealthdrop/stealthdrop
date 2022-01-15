@@ -44,21 +44,21 @@ app.post("/generate_proof", function (req, res) {
 
   // spawn a child process to run the proof generation
   const prover = spawn("node", ["prover.js", inputFileName], {
-    timeout: 1 * 60 * 1000,
+    timeout: 10 * 60 * 1000,
   });
   if (!prover.pid) {
     res.status(500);
     return;
   }
   currentProcessesRunning.add(inputHash);
-  prover.stdout.on("data", (data) => {
+  prover.stderr.on("data", (data) => {
     outputData[inputHash] = data.toString();
-    console.log(`stdout: ${inputHash} :  ${data}`);
+    console.log(`stderr: ${inputHash} :  ${data}`);
     console.log("outputData", outputData);
   });
 
-  prover.stderr.on("data", (data) => {
-    console.error(`stderr: ${data}`);
+  prover.stdout.on("data", (data) => {
+    console.error(`stdout: ${data}`);
   });
 
   prover.on("close", (code) => {

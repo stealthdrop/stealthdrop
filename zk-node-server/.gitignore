@@ -1,2 +1,5 @@
 .vercel
 node_modules
+circuit.wasm
+circuit.zkey
+inputs/
