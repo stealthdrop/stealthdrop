@@ -2,7 +2,7 @@ pragma solidity >=0.6.0 <0.9.0;
 //SPDX-License-Identifier: MIT
 
 import "hardhat/console.sol";
-import "./wordlinesVerifier.sol";
+import "./airdropVerifier.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // Largely inspired by https://github.com/Uniswap/merkle-distributor/blob/master/contracts/interfaces/IMerkleDistributor.sol
@@ -24,7 +24,7 @@ contract ZKT is ERC20, Verifier {
         uint256 freeSupply,
         uint256 airdropSupply,
         uint256 _merkleRoot,
-        string _messageClaimString
+        string memory _messageClaimString
     ) public ERC20("Zero Knowledge Token", "ZKT") {
         _mint(msg.sender, freeSupply);
         _mint(address(this), airdropSupply);
