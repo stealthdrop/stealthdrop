@@ -33,26 +33,25 @@ contract ZKT is ERC20, Verifier {
 
     /**
      * @dev Claims airdropped tokens.
-     * @param amount The amount of the claim being made.
      * @param a ZK merkle proof alpha proving the claim is valid.
      * @param b ZK merkle proof beta proving the claim is valid.
      * @param c ZK merkle proof charlie proving the claim is valid.
      * @param signals ZK merkle proof signals proving the claim is valid.
      */
     function claimTokens(
-          uint256 amount,
           uint[2] memory a,
           uint[2][2] memory b,
           uint[2] memory c,
-          uint[3] memory signals) external {
+          uint[4] memory signals) external {
         // TODO indices
         require(!claimedNullifiers[signals[0]], "Nullifier has already been claimed");
         require(signals[1] == merkleRoot, "Merkle Root does not match contract");
         console.log(uint256(msg.sender));
         require(signals[2] == uint256(msg.sender), "Sender address does not match zk input sender address");
+        require(signals[3] == "msghash", "Message hash invalid"); // TODO 
         require(verifyProof(a, b, c, signals), "Invalid Proof");
         claimedNullifiers[signals[0]] = true;
-        emit Claim(msg.sender, amount);
-        _transfer(address(this), msg.sender, amount);
+        emit Claim(msg.sender, 10**decimals);
+        _transfer(address(this), msg.sender, 10**decimals);
     }
 }
