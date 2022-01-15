@@ -1,14 +1,14 @@
-const MerkleTree = require('fixed-merkle-tree');
-const circomlib = require('tornado-circomlib');
-const snarkjs = require('snarkjs');
+const MerkleTree = require("fixed-merkle-tree");
+const circomlib = require("tornado-circomlib");
+const snarkjs = require("snarkjs");
 const bigInt = snarkjs.bigInt;
 // const crypto = require('crypto');
-const ethers = require('ethers');
-const { getPublicKey, sign, Point, CURVE } = require('@noble/secp256k1');
-const keccak256 = require('keccak256');
-const { assert } = require('console');
-const fs = require('fs');
-const mimcfs = require('./mimc.js');
+const ethers = require("ethers");
+const { getPublicKey, sign, Point, CURVE } = require("@noble/secp256k1");
+const keccak256 = require("keccak256");
+const { assert } = require("console");
+const fs = require("fs");
+const mimcfs = require("./mimc.js");
 
 const fromHexString = (hexString) =>
   new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
@@ -38,17 +38,34 @@ function Uint8Array_to_bigint(x) {
   return ret;
 }
 
+function bigint_to_tuple(x) {
+  // 2 ** 86
+  let mod = 77371252455336267181195264n;
+  let ret = [0n, 0n, 0n];
+
+  var x_temp = x;
+  for (var idx = 0; idx < 3; idx++) {
+    ret[idx] = x_temp % mod;
+    x_temp = x_temp / mod;
+  }
+  return ret;
+}
+
 async function generateTestCases() {
   // privkey, msghash, pub0, pub1
   const test_cases = [];
   const proverPrivkeys = [
-    BigInt('0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'),
+    BigInt(
+      "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
+    ),
     88549154299169935420064281163296845505587953610183896504176354567359434168161n,
     90388020393783788847120091912026443124559466591761394939671630294477859800601n,
     110977009687373213104962226057480551605828725303063265716157300460694423838923n,
   ];
   const claimerPrivkeys = [
-    BigInt('0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a'),
+    BigInt(
+      "0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a"
+    ),
     88549154299169935420064281163296845505587953610183896504176354567359434168161n,
     90388020393783788847120091912026443124559466591761394939671630294477859800601n,
     110977009687373213104962226057480551605828725303063265716157300460694423838923n,
@@ -59,10 +76,10 @@ async function generateTestCases() {
     let r = signature.slice(0, 32);
     let s = signature.slice(32, 64);
     const v = 27 + Number(signature[64] >= 128);
-    if (typeof r == 'object') {
+    if (typeof r == "object") {
       r = Uint8Array_to_bigint(r).toString();
     }
-    if (typeof s == 'object') {
+    if (typeof s == "object") {
       s = Uint8Array_to_bigint(s).toString();
     }
     return { r, s, v };
@@ -75,7 +92,7 @@ async function generateTestCases() {
 
     // Pad with zeros
     if (len > register_length * k) {
-      m = '0'.repeat(len - register_length * k) + m;
+      m = "0".repeat(len - register_length * k) + m;
       register_length++;
     }
 
@@ -86,48 +103,35 @@ async function generateTestCases() {
     return bytes_split;
   }
 
-  function bigint_to_tuple(x) {
-      // 2 ** 86
-      let mod = 77371252455336267181195264n;
-      let ret = [0n, 0n, 0n];
-
-      var x_temp = x;
-      for (var idx = 0; idx < 3; idx++) {
-          ret[idx] = x_temp % mod;
-          x_temp = x_temp / mod;
-      }
-      return ret;
-  }
-
   function bigint_to_array(n, k, x) {
-      let mod = 1n;
-      for (var idx = 0; idx < n; idx++) {
-          mod = mod * 2n;
-      }
+    let mod = 1n;
+    for (var idx = 0; idx < n; idx++) {
+      mod = mod * 2n;
+    }
 
-      let ret = [];
-      var x_temp = x;
-      for (var idx = 0; idx < k; idx++) {
-          ret.push(x_temp % mod);
-          x_temp = x_temp / mod;
-      }
-      return ret;
+    let ret = [];
+    var x_temp = x;
+    for (var idx = 0; idx < k; idx++) {
+      ret.push(x_temp % mod);
+      x_temp = x_temp / mod;
+    }
+    return ret;
   }
 
   // bigendian
   function Uint8Array_to_bigint(x) {
-      var ret = 0n;
-      for (var idx = 0; idx < x.length; idx++) {
-          ret = ret * 256n;
-    ret = ret + BigInt(x[idx]);
-      }
-      return ret;
+    var ret = 0n;
+    for (var idx = 0; idx < x.length; idx++) {
+      ret = ret * 256n;
+      ret = ret + BigInt(x[idx]);
+    }
+    return ret;
   }
 
   for (var idx = 0; idx < 1; idx++) {
     const privkey = proverPrivkeys[idx];
     const pubkey = Point.fromPrivateKey(privkey);
-    const msg = 'zk-airdrop';
+    const msg = "zk-airdrop";
     const msghash_bigint = Uint8Array_to_bigint(keccak256(msg)); // Needs to be basicaly some public random hardcoded value
     const msghash = bigint_to_Uint8Array(msghash_bigint);
     const sig = await sign(msghash, bigint_to_Uint8Array(privkey), {
@@ -151,18 +155,25 @@ async function generateTestCases() {
     const wallet = new ethers.Wallet(privkey);
     const hexAddress = wallet.address.slice(2, wallet.address.length);
     console.log(
-      'Address: ',
+      "Address: ",
       hexAddress,
       fromHexString(hexAddress),
       wallet.address,
       hexStringToBigInt(hexAddress)
     );
-    console.log('Private key: ', privkey);
+    console.log("Private key: ", privkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(1, [], {hashFunction: mimcfs.mimcHash(0)});
+    const tree = new MerkleTree(1, [], { hashFunction: mimcfs.mimcHash(0) });
 
-    const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
+    const mimc = mimcfs.mimcHash(1)(
+      r_array[0],
+      r_array[1],
+      r_array[2],
+      s_array[0],
+      s_array[1],
+      s_array[2]
+    );
     // const pedersenHash = (data) =>
     //   circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0];
     const nullifierHash = mimc;
@@ -185,25 +196,39 @@ async function generateTestCases() {
     console.log("_layers", tree._layers);
     console.log("msghash", msghash);
 
-    
     const json = JSON.stringify(
-        {
-          root: tree.root(),
-          r: r_array.map(x => x.toString()),
-          s: s_array.map(x => x.toString()),
-          msghash: msghash_array.map(x => x.toString()),
-          pubkey: [bigint_to_tuple(pubkey.x).map(x => x.toString()), bigint_to_tuple(pubkey.y).map(x => x.toString())],
-          pathElements: pathElements,
-          pathIndices: pathIndices,
-          claimerAddress: hexStringToBigInt(hexAddress).toString(10),
-          claimerAddressMinusOne: (hexStringToBigInt(hexAddress) - BigInt(1)).toString(10),
-          nullifierHash: nullifierHash.toString(),
-        },
-        null,
-        '\t'
-      );
-    fs.writeFile('circuits/airdrop/inputs/input_' + idx.toString() + '.json', json, 'utf8', () => {});
+      {
+        root: tree.root(),
+        r: r_array.map((x) => x.toString()),
+        s: s_array.map((x) => x.toString()),
+        msghash: msghash_array.map((x) => x.toString()),
+        pubkey: [
+          bigint_to_tuple(pubkey.x).map((x) => x.toString()),
+          bigint_to_tuple(pubkey.y).map((x) => x.toString()),
+        ],
+        pathElements: pathElements,
+        pathIndices: pathIndices,
+        claimerAddress: hexStringToBigInt(hexAddress).toString(10),
+        claimerAddressMinusOne: (
+          hexStringToBigInt(hexAddress) - BigInt(1)
+        ).toString(10),
+        nullifierHash: nullifierHash.toString(),
+      },
+      null,
+      "\t"
+    );
+    fs.writeFile(
+      "circuits/airdrop/inputs/input_" + idx.toString() + ".json",
+      json,
+      "utf8",
+      () => {}
+    );
   }
 }
 
-generateTestCases();
+console.log(
+  bigint_to_tuple(
+    57896044618658097711785492504343953926418782139537452191302581570759080747168n
+  )
+);
+// generateTestCases();

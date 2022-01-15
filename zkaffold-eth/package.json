@@ -51,6 +51,7 @@
     "compcir": "yarn workspace @scaffold-eth/circom compile",
     "verify": "yarn workspace @scaffold-eth/circom verify",
     "draft": "yarn workspace @scaffold-eth/circom draft",
+    "setup": "mkdir packages/react-app/src/contracts",
     "call": "yarn workspace @scaffold-eth/circom call",
     "mint": "yarn workspace @scaffold-eth/hardhat mint"
   },

@@ -61,3 +61,4 @@ template CheckReplay() {
     // Left to ensure it doesn't get optimized out (I hope -- tornado.cash uses squares)
     claimerAddressMinusOne === claimerAddress - 1;
 }
+
