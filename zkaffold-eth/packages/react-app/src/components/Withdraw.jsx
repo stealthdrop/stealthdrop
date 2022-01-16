@@ -118,9 +118,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       console.log("contract not found");
       return;
     }
+    const pi_a = proof["pi_a"];
+    const pi_b = proof["pi_b"];
+    const pi_c = proof["pi_c"];
+    const inputs = proof["inputs"];
     console.log("claim: ", proof, contract);
     const claimTokens = contract.connect(signer)["claimTokens"];
-    const returned = await tx(claimTokens(...proof));
+    const returned = await tx(claimTokens(pi_a, pi_b, pi_c, inputs));
     console.log("returned", returned);
   };
 
