@@ -174,9 +174,9 @@ module.exports = [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[4]",
+        "internalType": "uint256[6]",
         "name": "signals",
-        "type": "uint256[4]"
+        "type": "uint256[6]"
       }
     ],
     "name": "claimTokens",
@@ -400,9 +400,9 @@ module.exports = [
         "type": "uint256[2]"
       },
       {
-        "internalType": "uint256[4]",
+        "internalType": "uint256[6]",
         "name": "input",
-        "type": "uint256[4]"
+        "type": "uint256[6]"
       }
     ],
     "name": "verifyProof",

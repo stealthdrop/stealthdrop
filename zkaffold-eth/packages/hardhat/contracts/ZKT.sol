@@ -40,23 +40,24 @@ contract ZKT is ERC20, Verifier {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
-        uint256[4] memory signals
+        uint256[6] memory signals
     ) external {
         // TODO indices
         require(
-            !claimedNullifiers[signals[0]],
+            signals[0] == merkleRoot,
+            "Merkle Root does not match contract"
+        );
+        require(
+            !claimedNullifiers[signals[5]],
             "Nullifier has already been claimed"
         );
         require(
-            signals[1] == merkleRoot,
-            "Merkle Root does not match contract"
-        );
-        console.log(uint256(msg.sender));
-        require(
-            signals[2] == uint256(msg.sender),
+            signals[4] == uint256(msg.sender),
             "Sender address does not match zk input sender address"
         );
-        require(signals[3] == messageClaimHash, "Message hash invalid"); // TODO
+        require(signals[1] == 0x000000000000000000000000000000000000000000235c8773854c8cd41150de, "Message hash invalid"); // TODO
+        require(signals[2] == 0x0000000000000000000000000000000000000000000c2edbaba8c3bc85ca1b2e, "Message hash invalid"); // TODO
+        require(signals[3] == 0x000000000000000000000000000000000000000000052a0832a7b7b254efb97c, "Message hash invalid"); // TODO
         require(verifyProof(a, b, c, signals), "Invalid Proof");
         claimedNullifiers[signals[0]] = true;
         emit Claim(msg.sender, 10**18);

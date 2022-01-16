@@ -64,7 +64,7 @@ const deploy = async (
 ) => {
   console.log(` 🛰  Deploying: ${contractName}`);
 
-  const contractArgs = ["1000000000000000000", "100000000000000000000", 5];
+  const contractArgs = ["1000000000000000000", "100000000000000000000", "6492672106263402128651944770094821278358933461847467397776986261417344054068"];
   const contractArtifacts = await ethers.getContractFactory(contractName, {
     libraries: libraries,
   });
