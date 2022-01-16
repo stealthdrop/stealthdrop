@@ -49,7 +49,7 @@ app.post("/generate_proof", function (req, res) {
 
   // spawn a child process to run the proof generation
   const prover = spawn("node", ["prover.js", inputFileName], {
-    timeout: 10 * 60 * 1000,
+    timeout: 60 * 60 * 1000,
   });
   if (!prover.pid) {
     res.status(500);
