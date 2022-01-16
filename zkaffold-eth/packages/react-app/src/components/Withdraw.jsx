@@ -80,14 +80,15 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     if (!inputs) return;
     // send api post request to generate proof
     const returnData = await postData("http://localhost:3000/generate_proof", inputs);
-    setProofStatus(returnData && returnData["id"] ? "running" : "error");
-    const processId = returnData["id"];
+    const returnJSON = await returnData.json();
+    setProofStatus(returnJSON && returnJSON["id"] ? "running" : "error");
+    const processId = returnJSON["id"];
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
       const res = await postData("http://localhost:3000/result", { id: processId });
       if (res.status === 200) {
-        setProof(res.body);
+        setProof(await res.json());
         clearInterval(intervalId);
         setProofStatus("found");
       } else if (res.status === 400) {

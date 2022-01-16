@@ -3,6 +3,7 @@ const snarkjs = require("snarkjs");
 const hash = require('object-hash');
 const fs = require("fs");
 const { spawn } = require('child_process');
+const cors = require('cors');
 
 const app = express();
 
@@ -25,10 +26,14 @@ var currentProcessesRunning = new Set();
 
 var outputData = {};
 
+app.use(cors({origin: "*"}));
+
 app.post("/generate_proof", function (req, res) {
   const input = req.body;
   const inputHash = hash(input);
   const inputFileName = `inputs/${inputHash}.json`;
+  console.log("input", input);
+  console.log("inputFileName", inputFileName);
 
   if (currentProcessesRunning.has(inputHash) || !!outputData[inputHash]) {
     res.json({ id: inputHash });
