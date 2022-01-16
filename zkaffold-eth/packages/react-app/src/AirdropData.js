@@ -32,4 +32,8 @@ const merkleTreeLeaves = [
     "0x52655b3a3b1a7548363ca9b3af2a9bbea3b67503",
     "0x926b47c42ce6bc92242c080cf8fafed34a164017",
     "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "0xffaa22b8c5db1a7fbcf0005980fce67f1ad654f5",
+    "0xc2d8cfcb9a7646496e4534c315fb53dcac55061f",
+    "0xbb483e8976cd690ac5f1e82bcc1f3a32012ccc97",
+    "0xa812c854be9e3558b4f5fdcc83eb3c9f53c27b23"
 ];
