@@ -62,14 +62,15 @@ function bigint_to_array(n, k, x) {
 }
 
 function parseSignature(sig) {
-    const sig_arr = bigint_to_Uint8Array(hexStringTobigInt(sig));
-    console.log("sig stuff", sig_arr.length, sig_arr);
-    const r = sig_arr.slice(0, 32);
-    const s = sig_arr.slice(32, 64);
-    var r_bigint = Uint8Array_to_bigint(r);
-    var s_bigint = Uint8Array_to_bigint(s);
+    console.log("sig", sig);
+    const r_hex = sig.slice(2, 66)
+    const s_hex = sig.slice(66, 66+64)
+    // console.log("sig stuff", sig_arr.length, sig_arr);
+    var r_bigint = hexStringTobigInt(r_hex);
+    var s_bigint = hexStringTobigInt(s_hex);
     var r_array = bigint_to_array(86, 3, r_bigint);
     var s_array = bigint_to_array(86, 3, s_bigint);
+    console.log("s_bigint", s_bigint);
     return [r_array, s_array];
 }
 

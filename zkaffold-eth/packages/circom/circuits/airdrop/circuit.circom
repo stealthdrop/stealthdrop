@@ -9,7 +9,7 @@ template Main(levels, n, k) {
     signal input root;
     signal input r[k];
     signal input s[k];
-    signal input msghash[k];
+    //signal input msghash[k];
     signal input pubkey[2][k];
     signal input pathElements[levels];
     signal input pathIndices[levels];
@@ -18,13 +18,13 @@ template Main(levels, n, k) {
     signal input privateClaimerAddress;
     signal input nullifierHash;
 
-    component sigVerify = ECDSAVerify(n, k);
-    for (var i = 0;i < k;i++) {
-        sigVerify.r[i] <== r[i];
-        sigVerify.s[i] <== s[i];
-        sigVerify.msghash[i] <== msghash[i];
-        for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
-    }
+    //component sigVerify = ECDSAVerify(n, k);
+    //for (var i = 0;i < k;i++) {
+        //sigVerify.r[i] <== r[i];
+        //sigVerify.s[i] <== s[i];
+        //sigVerify.msghash[i] <== msghash[i];
+        //for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
+    //}
 
     component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
@@ -56,4 +56,4 @@ template Main(levels, n, k) {
     equality.out === 1;
 }
 
-component main {public [root, nullifierHash, publicClaimerAddress, msghash]} = Main(10, 86, 3);
+component main {public [root, nullifierHash, publicClaimerAddress]} = Main(10, 86, 3);

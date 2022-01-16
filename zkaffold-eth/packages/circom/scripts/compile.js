@@ -67,9 +67,15 @@ for (circuitName of circuitsList.split(",")) {
     execSync("circom circuit.circom --r1cs --wasm --sym", { stdio: "inherit" });
     execSync("npx snarkjs r1cs info circuit.r1cs", { stdio: "inherit" });
     execSync("cp circuit_js/circuit.wasm circuit.wasm", { stdio: "inherit" });
+    execSync(
+      'node circuit_js/generate_witness.js circuit.wasm inputs/input_00.json witness.wtns',
+      {
+        stdio: "inherit",
+      }
+    );
     console.log("starting beefy boy");
     execSync(
-      "node --max-old-space-size=614400 /root/zk-airdrop/zkaffold-eth/packages/circom/node_modules/.bin/snarkjs groth16 setup circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
+      "npx snarkjs groth16 setup circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
       { stdio: "inherit" }
     );
     console.log("ending beefy boy");
@@ -87,19 +93,13 @@ for (circuitName of circuitsList.split(",")) {
     //     { stdio: "inherit" }
     //   );
     // }
-    execSync(
-      "npx snarkjs zkey verify circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
-      { stdio: "inherit" }
-    );
+    // execSync(
+    //   "npx snarkjs zkey verify circuit.r1cs ../../powersoftau/powersOfTau28_hez_final_24.ptau circuit.zkey",
+    //   { stdio: "inherit" }
+    // );
     execSync(
       "npx snarkjs zkey export verificationkey circuit.zkey keys/verification_key.json",
       { stdio: "inherit" }
-    );
-    execSync(
-      'node circuit_js/generate_witness.js circuit.wasm inputs/input_0.json witness.wtns',
-      {
-        stdio: "inherit",
-      }
     );
     execSync(
       "npx snarkjs groth16 prove circuit.zkey witness.wtns proof.json public.json",
