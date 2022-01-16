@@ -50,6 +50,7 @@
     "watch-theme": "yarn workspace @scaffold-eth/react-app watch",
     "compcir": "yarn workspace @scaffold-eth/circom compile",
     "verify": "yarn workspace @scaffold-eth/circom verify",
+    "verifycontract": "yarn workspace @scaffold-eth/hardhat verifycontract",
     "draft": "yarn workspace @scaffold-eth/circom draft",
     "call": "yarn workspace @scaffold-eth/circom call",
     "mint": "yarn workspace @scaffold-eth/hardhat mint"
