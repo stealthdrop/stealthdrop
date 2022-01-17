@@ -6,11 +6,13 @@ import { useState } from "react";
 import { generateProofInputs } from "../GenerateProof";
 import { isEligible } from "../AirdropData";
 import { Heading1 } from "./lolcss";
+import { CheckO } from "./CheckO.tsx";
 import { useMemo } from "react";
 import { Address } from ".";
 import { ethers } from "ethers";
 import { useContractLoader } from "../hooks";
 import { Transactor } from "../helpers";
+import { CheckCircle, GitHub } from 'react-feather';
 
 const signText = "zk-airdrop";
 const signTextHash = "0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de";
@@ -130,19 +132,22 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
+      <HeaderBox>
+        <Heading style={{ fontSize: "64px", width: "100%", letterSpacing: "1px"}}><div>stealthdrop</div><div><GitHub size={48} style={{marginTop: "24px"}}/></div></Heading>
+        <Heading style={{ fontSize: "32px", width: "100%", fontWeight: "200", marginTop: "8px"}}>Anonymous Airdrops using ZK-SNARKS</Heading>
+      </HeaderBox>
       <Box onClick={() => setStep(1)}>
-        <Heading>1. Connect Public Wallet</Heading>
+        <Heading><p style={{ marginBottom: "0px"}}>1. Connect Public Wallet</p><div style={{ marginBottom: "0px"}}><CheckCircle size={32} style={{marginTop: "7px"}}/></div></Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>Connect the account associated with airdrop</Tekst>
           <Bootoon
             key="loginbutton"
-            style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
             shape="round"
             size="large"
             onClick={loadWeb3Modal}
             disabled={!!address}
           >
-            {web3Modal && web3Modal.cachedProvider ? "Connected!" : "Connect"}
+            {web3Modal && web3Modal.cachedProvider ? "CONNECTED" : "CONNECT"}
           </Bootoon>
           {address && (
             <Tekst>
@@ -150,20 +155,20 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
               {<Address color={tekstcolor} size={teskstsize} address={address} ensProvider={mainnetProvider} />}
             </Tekst>
           )}
-          {eligibility !== null && <Tekst>{eligibility ? "Eligibile ✅" : "Not Eligibile :("}</Tekst>}
+          {eligibility !== null && <Tekst>{eligibility ? "Eligible ✅" : "Not Eligible :("}</Tekst>}
         </Collapse>
       </Box>
       <Box onClick={() => setStep(2)}>
-        <Heading>2. Sign Message</Heading>
+        <Heading><p style={{ marginBottom: "0px"}}>2. Sign Message</p><div style={{ marginBottom: "0px"}}><CheckCircle size={32} style={{marginTop: "7px"}}/></div></Heading>
         <Collapse collapsed={step != 2}>
           <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
-            {!!signature?.sign ? "Signed!" : "Generate Signed Message"}
+            {!!signature?.sign ? "SIGNED" : "SIGN MESSAGE"}
           </Bootoon>
         </Collapse>
       </Box>
 
       <Box onClick={() => setStep(3)}>
-        <Heading>3. Connect Anonymous Wallet</Heading>
+        <Heading><p style={{ marginBottom: "0px"}}>3. Connect Anonymous Wallet</p><div style={{ marginBottom: "0px"}}><CheckCircle size={32} style={{marginTop: "7px"}}/></div></Heading>
 
         <Collapse collapsed={step != 3}>
           {!!address && address === signature?.address && (
@@ -179,32 +184,32 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       </Box>
 
       <Box onClick={() => setStep(4)}>
-        <Heading>4. Prove Ownership</Heading>
+        <Heading><p style={{ marginBottom: "0px"}}>4. Prove Ownership</p><div style={{ marginBottom: "0px"}}><CheckCircle size={32} style={{marginTop: "7px"}}/></div></Heading>
         <Collapse collapsed={step != 4}>
           <Tekst>Generate Proof to withdraw to {address}</Tekst>
-          <Bootoon onClick={generateZKProof}>Generate</Bootoon>
+          <Bootoon onClick={generateZKProof}>GENERATE</Bootoon>
           <Tekst>Proof: {proofStatus}</Tekst>
         </Collapse>
       </Box>
 
       <Box onClick={() => setStep(5)}>
-        <Heading>5. Claim</Heading>
+        <Heading><p style={{ marginBottom: "0px"}}>5. Claim</p><div style={{ marginBottom: "0px"}}><CheckCircle size={32} style={{marginTop: "7px"}}/></div></Heading>
         <Collapse collapsed={step != 5}>
           <Tekst>Claim by sending a transaction on chain to the ERC-20 contract with the ZK Proof</Tekst>
-          <Bootoon onClick={claim}>Claim Token</Bootoon>
+          <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
       </Box>
     </div>
   );
 }
 
-const tekstcolor = "#bfbfbf";
+const tekstcolor = "#e5e7eb";
 const teskstsize = "18px";
 
 const Tekst = styled.div`
   display: block;
   font-size: ${teskstsize};
-  color: ${tekstcolor};
+  color: #e5e7eb;
   font-weight: 400;
 `;
 
@@ -215,35 +220,63 @@ const Collapse = styled.div`
 `;
 
 const Box = styled.div`
-  margin: 4px;
+  margin: auto;
+  width: 75%;
+  margin-bottom: 12px;
+  margin-top: 12px;
   border: 0px solid #00000069;
   border-radius: 12px;
   padding: inherit;
-  background: #6666668a;
-  box-shadow: 3px 3px 3px black;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: linear-gradient(101.14deg, rgb(155, 80, 255) 0%, rgb(112, 180, 255) 58%);
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+`;
+
+const HeaderBox = styled.div`
+  margin: auto;
+  width: 75%;
+  margin-bottom: 12px;
+  margin-top: 12px;
+  border: 0px solid #00000069;
+  border-radius: 12px;
+  padding: inherit;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
 `;
 
 const Heading = styled(Heading1)`
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 32px;
   text-align: left;
-  background: linear-gradient(to right, #00000069, #00000069);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: white;
+  margin: auto;
+  letter-spacing: 1px;
+  white-space: break-spaces;
+  display: flex;
+  justify-content: space-between;
+  width: 95%;
 `;
 
 const Bootoon = styled.button`
-  background-color: #00000069;
-  border: 1px solid #00000069;
-  border-radius: 18px;
+  letter-spacing: 1px;
+  white-space: break-spaces;
+  background: linear-gradient(134.14deg, rgb(148, 13, 255) 18.37%, rgb(0, 148, 255) 82.04%);
+  border-radius: 10px;
+  border: 0px;
   color: white;
   font-family: sans-serif;
   font-size: 18px;
-  padding: 12px 32px;
+  padding: 16px 32px;
+  align-items: center;
+  justify-content: center;
   margin: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   :hover {
-    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 10px 0px;
+    box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
     transition: all 0.3s ease;
   }
 `;

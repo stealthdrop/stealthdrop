@@ -1,9 +1,11 @@
+@import url('https://css.gg/check-o.css');
+
 body {
   margin: 0;
 }
 
 .background-image {
-  background-image: url(/black.jpeg);
+  background-image: linear-gradient(101.14deg, rgb(148, 13, 255) 11.12%, rgb(0, 148, 255) 58.22%);
   background-size: cover;
   background-repeat: no-repeat;
   background-attachment: fixed;
