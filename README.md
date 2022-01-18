@@ -19,13 +19,19 @@ To motivate this construction, we look at how airdrops currently work: Usually, 
 
 Focusing on the DeGov enabled by these tokens, one fatal flaw in current token systems is the muddling between identity and governance. If everyone knows `vitalik.eth` voted "NO" for a protocol proposal, how does that influence the opinion of the rest of the community? Does everyone still fairly and independently consider the impact of the proposal?
 
-[insert snapshot labs image leaking addresses]
+<img width="629" alt="image" src="https://user-images.githubusercontent.com/6984346/149878638-18c79ac2-a8fd-4122-9f00-a069ab76f108.png">
+caption "snapshot labs shares everyone's votes publicly"
 
 On the other end of the spectrum, when someone with a public identity deviates from the norm and casts a vote others in the community don't like, they end up exposing themselves to harassment on Twitter and other social media.
 
-[insert t11s tweets https://twitter.com/transmissions11/status/1465376966450708483]
+<img width="431" alt="image" src="https://user-images.githubusercontent.com/6984346/149878894-678988f2-f453-41de-b07d-a75ab6dc88b2.png">
 
-[insert https://twitter.com/BrantlyMillegan/status/1458167522340052992]
+caption "Everyone knows your vote"
+
+<img width="606" alt="image" src="https://user-images.githubusercontent.com/6984346/149879079-d917b615-eba7-4fff-9809-de05d274250e.png">
+
+caption "Everyone knows if you sell your token"
+
 
 While it's arguable if such accountability is actually a positive attribute of these token systems, we think it's important to explore the alternative.
 
@@ -59,9 +65,19 @@ Next we'll talk about how each part works and what design choices you may have m
 
 ### ECDSA Signature Verification
 
+While this is certainly the most complex part of the circuits, we actually had no role in creating it! Just recently, a [team from 0xPARC's learning group worked on making signature verification inside a ZK-SNARK possible](https://github.com/0xPARC/circom-secp256k1). These circuits are extremely beautiful! There's a lot of clever tricks going on to minimise the total number of constraints. Even so, this circuit is a bit of a behemoth: it takes 400k constraints to derive a public key from a private key and 9.6 million(!) constraints to verify a signature.
+
+For our application, we could have used the private -> public key derivation instead, saving ~9 million constraints, but we decided to use the signature verification circuit since it's impossible to obtain a private key from a wallet interface like MetaMask or WalletConnect. Perhaps, one day, wallets will allow for running ZK-SNARKs inside the wallet itself.
+
 ### Merkle Tree construction
 
+The circuit itself is rather straightforward. Checking a merkle path proof is just a matter of traversing the path and hashing children at each step. However, one design choice you might consider is the value at the leaves of the tree. We were thinking about ideas that might allow us to hide the list of addresses we airdrop to, but unfortunately couldn't come up with anything practical. It seemed like a non-trivial problem since any counterparty trying to deanonymise the list essentially has infinite time (since the Merkle Tree itself needs to be publicly stored to generate path proofs) and the search space of addresses in use is finite. The _simple_ centralised solution to this might be to store the tree itself in a central server and only reveal path proofs by making addresses provide a valid signature, but that's just not quite satisfying. We'd be curious to hear if you have ideas to do this in a decentralised setting.
+
 ### Nullifier hash construction
+
+[todo]
+
+One interesting tidbit to note here, particular to our application, is the non-malleability of ECDSA signatures: Given a message and a keypair, the generated signature is actually not unique. For any signature (R, S), (R, N-S) is also a valid signature (where N is the order of the secp256k1 group). Since stealthdrop generates nullifiers using signatures, this malleability would be a pretty big problem. To fix this, we only allow for signatures that have an S value lower than 1/2 prime order.
 
 ## On-chain contract
 
