@@ -21,7 +21,7 @@ import { Header, Account, Faucet, Ramp, Contract, GasGauge } from "./components"
 import { Transactor } from "./helpers";
 import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
-import { Hints, ExampleUI, Subgraph } from "./views";
+import { Subgraph } from "./views";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 import Withdraw from "./components/Withdraw";
 import NewAirdrop from "./components/NewAirdrop";
@@ -326,14 +326,6 @@ function App(props) {
               address={address}
               web3Modal={web3Modal}
               loadWeb3Modal={loadWeb3Modal}
-            />
-          </Route>
-          <Route path="/hints">
-            <Hints
-              address={address}
-              yourLocalBalance={yourLocalBalance}
-              mainnetProvider={mainnetProvider}
-              price={price}
             />
           </Route>
         </Switch>

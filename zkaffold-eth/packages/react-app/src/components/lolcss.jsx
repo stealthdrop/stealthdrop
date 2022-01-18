@@ -93,11 +93,6 @@ export const globalTransitionSettings = 'all 0.2s ease;   -moz-transition-proper
 
 export const cardHoverShadow = '0px 3px 15px rgba(0, 0, 0, 0.08)';
 
-type TextType = {
-  color?: string;
-  bold?: boolean;
-  size?: string;
-};
 export const MainHeading = styled.p`
   font-family: ${fonts.extraBold};
   font-size: ${fontSizes.size8};
@@ -208,18 +203,6 @@ export const FadedText = styled.p`
   -moz-font-feature-settings: 'cv11' 1;
 `;
 
-// TODO: Make the type API for both Flex standards more consistent.
-// TODO: Make defaults align with HTML/CSS standard defaults instead of non-standard.
-type FlexType = {
-  flexDirection?: string;
-  alignItems?: string;
-  justifyContent?: string;
-  padding?: string;
-  width?: string;
-  adapting?: boolean;
-  centered?: boolean;
-  $wrap?: boolean;
-};
 export const FlexRow = styled.div`
   display: flex;
   flex-direction: ${p => p.flexDirection || 'row'};
@@ -245,18 +228,6 @@ export const FlexColumn = styled.div`
   }
 `;
 
-// TODO: Make the type API for Card standards more consistent.
-type CardTypes = {
-  flexDirection?: string;
-  alignItems?: string;
-  padding?: string;
-  justifyContent?: string;
-  margin?: string;
-  maxWidth?: string;
-  noBorder?: boolean;
-  selected?: boolean;
-  shadow?: boolean;
-};
 
 export const Card = styled.div`
   display: flex;

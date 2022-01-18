@@ -6,7 +6,6 @@ import { useState } from "react";
 import { generateProofInputs } from "../GenerateProof";
 import { isEligible } from "../AirdropData";
 import { Heading1 } from "./lolcss";
-import { CheckO } from "./CheckO.tsx";
 import { useMemo } from "react";
 import { Address } from ".";
 import { ethers } from "ethers";
@@ -81,14 +80,14 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
     console.log("inputss", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
-    const returnData = await postData("http://45.76.64.104:3000/generate_proof", inputs);
+    const returnData = await postData("http://45.76.66.251/generate_proof", inputs);
     const returnJSON = await returnData.json();
     setProofStatus(returnJSON && returnJSON["id"] ? "running" : "error");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
-      const res = await postData("http://45.76.64.104:3000/result", { id: processId });
+      const res = await postData("http://45.76.66.251/result", { id: processId });
       if (res.status === 200) {
         setProof(await res.json());
         clearInterval(intervalId);
