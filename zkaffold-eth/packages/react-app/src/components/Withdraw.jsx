@@ -41,7 +41,15 @@ async function postData(url = "", data = {}) {
   return response; // parses JSON response into native JavaScript objects
 }
 
-export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, logoutOfWeb3Modal, mainnetProvider, provider }) {
+export default function Withdraw({
+  signer,
+  address,
+  web3Modal,
+  loadWeb3Modal,
+  logoutOfWeb3Modal,
+  mainnetProvider,
+  provider,
+}) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
   const [proofStatus, setProofStatus] = useState("GENERATE");
@@ -52,7 +60,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
 
   const tx = Transactor(provider, null);
 
-  const displayAddress = (address) => {
+  const displayAddress = address => {
     if (!address) {
       return "";
     }
@@ -64,7 +72,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
       displayAddress += "..." + address.substr(-4);
     }
     return displayAddress;
-  }
+  };
 
   const signMessage = async () => {
     console.log("signer", signer);
@@ -172,9 +180,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
           <TickMark isCompleted={(address && eligibility) || !!signature} isWrong={address && !eligibility} />
         </Heading>
         <Collapse collapsed={step != 1}>
-          <Tekst>{eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop."}</Tekst>
+          <Tekst>
+            {eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop."}
+          </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
-            {web3Modal && web3Modal.cachedProvider && address ? `CONNECTED TO ${displayAddress(address).toUpperCase()}` : "CONNECT"}
+            {web3Modal && web3Modal.cachedProvider && address
+              ? `CONNECTED TO ${displayAddress(address).toUpperCase()}`
+              : "CONNECT"}
           </Bootoon>
         </Collapse>
       </Box>
@@ -204,7 +216,9 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
             </Tekst>
           )}
           {!!address && address !== signature?.address && (
-            <Tekst>You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.</Tekst>
+            <Tekst>
+              You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.
+            </Tekst>
           )}
           {!address && <Tekst>Not connected to any wallet. Switch your account through your wallet.</Tekst>}
         </Collapse>
@@ -216,7 +230,9 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
           <TickMark isCompleted={!!proof} />
         </Heading>
         <Collapse collapsed={step != 4}>
-          <Tekst>Generate Proof to withdraw your tokens to {address.substr(0, 6) + "..." + address.substr(-4)}</Tekst>
+          <Tekst>
+            Generate Proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
+          </Tekst>
           <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
       </Box>
@@ -226,7 +242,9 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, lo
           <p style={{ marginBottom: "0px" }}>5. Claim</p>
         </Heading>
         <Collapse collapsed={step != 5}>
-          <Tekst>Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.</Tekst>
+          <Tekst>
+            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
+          </Tekst>
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
       </Box>
@@ -262,7 +280,7 @@ const teskstsize = "18px";
 const Tekst = styled.div`
   display: block;
   font-size: ${teskstsize};
-  color: #FFFFFF;
+  color: #ffffff;
   font-weight: 400;
   width: 95%;
   margin: auto;
@@ -286,8 +304,13 @@ const Box = styled.div`
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  background: linear-gradient(to right, #fc5c7d, #6a82fb); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+  background: linear-gradient(
+    to right,
+    #fc5c7d,
+    #6a82fb
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
+    rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
 `;
 
 const HeaderBox = styled.div`
@@ -319,7 +342,7 @@ const Heading = styled(Heading1)`
 const Bootoon = styled.button`
   letter-spacing: 1px;
   white-space: break-spaces;
-  background: linear-gradient(135deg, rgba(250,69,106,1) 0%, rgba(90,117,251,1) 100%);
+  background: linear-gradient(135deg, rgba(250, 69, 106, 1) 0%, rgba(90, 117, 251, 1) 100%);
   border-radius: 10px;
   border: 0px;
   color: white;
