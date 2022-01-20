@@ -11,7 +11,8 @@ import { Address } from ".";
 import { ethers } from "ethers";
 import { useContractLoader } from "../hooks";
 import { Transactor } from "../helpers";
-import { CheckCircle, Circle, GitHub } from "react-feather";
+import { CheckCircle, Circle, GitHub, XCircle } from "react-feather";
+import { useLookupAddress } from "../hooks";
 
 const signText = "zk-airdrop";
 const signTextHash = "0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de";
@@ -40,15 +41,30 @@ async function postData(url = "", data = {}) {
   return response; // parses JSON response into native JavaScript objects
 }
 
-export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, mainnetProvider, provider }) {
+export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, logoutOfWeb3Modal, mainnetProvider, provider }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
-  const [proofStatus, setProofStatus] = useState("need to start");
+  const [proofStatus, setProofStatus] = useState("GENERATE");
   const [step, setStep] = useState(1);
 
+  const ensName = useLookupAddress(mainnetProvider, address);
   const contracts = useContractLoader(provider);
 
   const tx = Transactor(provider, null);
+
+  const displayAddress = (address) => {
+    if (!address) {
+      return "";
+    }
+    let displayAddress = address.substr(0, 6);
+
+    if (ensName && ensName.indexOf("0x") < 0) {
+      displayAddress = ensName;
+    } else {
+      displayAddress += "..." + address.substr(-4);
+    }
+    return displayAddress;
+  }
 
   const signMessage = async () => {
     console.log("signer", signer);
@@ -86,7 +102,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       return;
     }
     const returnJSON = await returnData.json();
-    setProofStatus(returnJSON && returnJSON["id"] ? "running" : "error");
+    setProofStatus(returnJSON && returnJSON["id"] ? "GENERATING" : "ERROR");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
@@ -95,13 +111,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       if (res.status === 200) {
         setProof(await res.json());
         clearInterval(intervalId);
-        setProofStatus("found");
+        setProofStatus("GENERATED");
       } else if (res.status === 400) {
-        setProofStatus("running");
+        setProofStatus("GENERATING");
       } else {
         console.log("error", res);
         clearInterval(intervalId);
-        setProofStatus("error");
+        setProofStatus("ERROR");
       }
     }, 10000);
   };
@@ -140,9 +156,9 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
           <Heading style={{ fontSize: "64px", width: "100%", letterSpacing: "1px" }}>
             <div>stealthdrop</div>
           </Heading>
-          <a href={"https://github.com/nalinbhardwaj/stealthdrop"}>
+          <a href={"https://github.com/nalinbhardwaj/stealthdrop"} target="_blank">
             <div>
-              <GitHub size={24} color="white" style={{ marginTop: "24px" }} />
+              <GitHub size={32} color="white" style={{ marginTop: "28px" }} />
             </div>
           </a>
         </div>
@@ -153,20 +169,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
       <Box onClick={() => setStep(1)}>
         <Heading>
           <p style={{ marginBottom: "0px" }}>1. Connect Public Wallet</p>
-          <TickMark isCompleted={address || !!signature} />
+          <TickMark isCompleted={(address && eligibility) || !!signature} isWrong={address && !eligibility} />
         </Heading>
         <Collapse collapsed={step != 1}>
-          <Tekst>Connect the account associated with airdrop</Tekst>
+          <Tekst>{eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop."}</Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
-            {web3Modal && web3Modal.cachedProvider ? "CONNECTED" : "CONNECT"}
+            {web3Modal && web3Modal.cachedProvider && address ? `CONNECTED TO ${displayAddress(address).toUpperCase()}` : "CONNECT"}
           </Bootoon>
-          {address && (
-            <Tekst>
-              Connected to{" "}
-              {<Address color={tekstcolor} size={teskstsize} address={address} ensProvider={mainnetProvider} />}
-            </Tekst>
-          )}
-          {eligibility !== null && <Tekst>{eligibility ? "Eligible ✅" : "Not Eligible :("}</Tekst>}
         </Collapse>
       </Box>
       <Box onClick={() => setStep(2)}>
@@ -175,6 +184,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
           <TickMark isCompleted={!!signature} />
         </Heading>
         <Collapse collapsed={step != 2}>
+          <Tekst>{`Sign a message using ${displayAddress(address)} to ZK-prove your airdrop claim.`}</Tekst>
           <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
             {!!signature?.sign ? "SIGNED" : "SIGN MESSAGE"}
           </Bootoon>
@@ -190,13 +200,13 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
         <Collapse collapsed={step != 3}>
           {!!address && address === signature?.address && (
             <Tekst>
-              Right now you are connected to your public wallet. Switch to a new wallet to preserve anonymity
+              You are currently connected to your public wallet. Switch to a different wallet to preserve anonymity.
             </Tekst>
           )}
           {!!address && address !== signature?.address && (
-            <Tekst>You are now connected to a seperate account. The tokens will be sent to this account.</Tekst>
+            <Tekst>You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.</Tekst>
           )}
-          {!address && <Tekst>Not connected to any account. Switch your account through your wallet</Tekst>}
+          {!address && <Tekst>Not connected to any wallet. Switch your account through your wallet.</Tekst>}
         </Collapse>
       </Box>
 
@@ -206,9 +216,8 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
           <TickMark isCompleted={!!proof} />
         </Heading>
         <Collapse collapsed={step != 4}>
-          <Tekst>Generate Proof to withdraw to {address}</Tekst>
-          <Bootoon onClick={generateZKProof}>GENERATE</Bootoon>
-          <Tekst>Proof: {proofStatus}</Tekst>
+          <Tekst>Generate Proof to withdraw your tokens to {address.substr(0, 6) + "..." + address.substr(-4)}</Tekst>
+          <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
       </Box>
 
@@ -217,7 +226,7 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
           <p style={{ marginBottom: "0px" }}>5. Claim</p>
         </Heading>
         <Collapse collapsed={step != 5}>
-          <Tekst>Claim by sending a transaction on chain to the ERC-20 contract with the ZK Proof</Tekst>
+          <Tekst>Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.</Tekst>
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
       </Box>
@@ -225,11 +234,17 @@ export default function Withdraw({ signer, address, web3Modal, loadWeb3Modal, ma
   );
 }
 
-const TickMark = ({ isCompleted }) => {
+const TickMark = ({ isCompleted, isWrong }) => {
   if (isCompleted) {
     return (
       <div style={{ marginBottom: "0px" }}>
         <CheckCircle color="#8fff58" size={32} style={{ marginTop: "7px" }} />
+      </div>
+    );
+  } else if (isWrong) {
+    return (
+      <div style={{ marginBottom: "0px" }}>
+        <XCircle color="#ff9994" size={32} style={{ marginTop: "7px" }} />
       </div>
     );
   } else {
@@ -247,8 +262,11 @@ const teskstsize = "18px";
 const Tekst = styled.div`
   display: block;
   font-size: ${teskstsize};
-  color: #e5e7eb;
+  color: #FFFFFF;
   font-weight: 400;
+  width: 95%;
+  margin: auto;
+  margin-top: 4px;
 `;
 
 const Collapse = styled.div`
@@ -268,9 +286,8 @@ const Box = styled.div`
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  background: linear-gradient(101.14deg, rgb(155, 80, 255) 0%, rgb(112, 180, 255) 58%);
-  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px,
-    rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
+  background: linear-gradient(to right, #fc5c7d, #6a82fb); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px;
 `;
 
 const HeaderBox = styled.div`
@@ -302,7 +319,7 @@ const Heading = styled(Heading1)`
 const Bootoon = styled.button`
   letter-spacing: 1px;
   white-space: break-spaces;
-  background: linear-gradient(134.14deg, rgb(148, 13, 255) 18.37%, rgb(0, 148, 255) 82.04%);
+  background: linear-gradient(135deg, rgba(250,69,106,1) 0%, rgba(90,117,251,1) 100%);
   border-radius: 10px;
   border: 0px;
   color: white;

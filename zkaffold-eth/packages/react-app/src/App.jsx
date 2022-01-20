@@ -229,6 +229,17 @@ function App(props) {
     setInjectedProvider(new Web3Provider(provider));
   }, [setInjectedProvider]);
 
+  const logoutOfWeb3Modal = async () => {
+    await web3Modal.clearCachedProvider();
+    if (injectedProvider && injectedProvider.provider && typeof injectedProvider.provider.disconnect == "function") {
+      await injectedProvider.provider.disconnect();
+    }
+    setTimeout(() => {
+      window.location.reload();
+    }, 1);
+  };
+
+
   useEffect(() => {
     if (web3Modal.cachedProvider) {
       loadWeb3Modal();
@@ -316,6 +327,7 @@ function App(props) {
               address={web3Modal?.cachedProvider ? address : null}
               web3Modal={web3Modal}
               loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
               mainnetProvider={mainnetProvider}
               provider={userProvider}
             />
@@ -404,9 +416,6 @@ const web3Modal = new Web3Modal({
   },
 });
 
-const logoutOfWeb3Modal = async () => {
-  await web3Modal.clearCachedProvider();
-};
 
 window.ethereum &&
   window.ethereum.on("chainChanged", chainId => {
