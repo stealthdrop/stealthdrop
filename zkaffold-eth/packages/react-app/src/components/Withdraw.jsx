@@ -327,7 +327,7 @@ const HeaderBox = styled.div`
 `;
 
 const Heading = styled(Heading1)`
-  font-weight: 400;
+  font-weight: 500;
   font-size: 32px;
   text-align: left;
   color: white;
