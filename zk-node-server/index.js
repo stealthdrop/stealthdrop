@@ -108,7 +108,8 @@ app.post("/generate_proof", function (req, res) {
 });
 
 app.post("/result", (req, res) => {
-  console.log("outputData", outputData);
+  processQueue();
+  // console.log("outputData", outputData);
   const id = req.body["id"];
   const result = outputData[id];
 
