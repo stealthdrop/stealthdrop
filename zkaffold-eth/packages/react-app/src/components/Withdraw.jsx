@@ -17,6 +17,9 @@ import { useLookupAddress } from "../hooks";
 const signText = "zk-airdrop";
 const signTextHash = "0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de";
 
+const backendUrl = "https://backend.stealthdrop.xyz/";
+// http://localhost:3001/"; // http://45.76.66.251/
+
 const exampleProof = [
   [0, 1],
   [
@@ -80,10 +83,6 @@ export default function Withdraw({
     console.log("msgTransaction", msgTransaction);
     const msgHash = ethers.utils.hashMessage(signText);
     const publicKey = ethers.utils.recoverPublicKey(msgHash, ethers.utils.arrayify(msgTransaction));
-    // const pk = ethers.utils.recoverPublicKey(
-    //   ethers.utils.arrayify("0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de"),
-    //   msgTransaction,
-    // );
     setSignature({ sign: msgTransaction, address, publicKey });
     console.log("hash", msgHash);
     console.log("verify", ethers.utils.verifyMessage(signText, msgTransaction));
@@ -104,24 +103,31 @@ export default function Withdraw({
     console.log("inputss", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
-    const returnData = await postData("https://backend.stealthdrop.xyz/generate_proof", inputs);
+    const returnData = await postData(backendUrl + "generate_proof", inputs);
     if (!returnData.ok) {
       alert("Error generating proof, please try again later");
       return;
     }
     const returnJSON = await returnData.json();
-    setProofStatus(returnJSON && returnJSON["id"] ? "GENERATING" : "ERROR");
+    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
-      const res = await postData("https://backend.stealthdrop.xyz/result", { id: processId });
+      const res = await postData(backendUrl + "result", { id: processId });
       if (res.status === 200) {
-        setProof(await res.json());
-        clearInterval(intervalId);
-        setProofStatus("GENERATED");
+        const json = await res.json();
+        if (!json) {
+          console.log("error", res);
+          clearInterval(intervalId);
+          setProofStatus("ERROR");
+        } else {
+          setProof(await res.json());
+          clearInterval(intervalId);
+          setProofStatus("GENERATED");
+        }
       } else if (res.status === 400) {
-        setProofStatus("GENERATING");
+        setProofStatus("LOADING");
       } else {
         console.log("error", res);
         clearInterval(intervalId);
@@ -159,6 +165,11 @@ export default function Withdraw({
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
+      {/* {address && (
+        <Bootoon onClick={logoutOfWeb3Modal} style={{ width: "35px", marginRight: "auto" }}>
+          Logout
+        </Bootoon>
+      )} */}
       <HeaderBox>
         <div style={{ display: "flex" }}>
           <Heading style={{ fontSize: "64px", width: "100%", letterSpacing: "1px" }}>
@@ -181,7 +192,9 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>
-            {eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop."}
+            {eligibility
+              ? "You're eligible for the airdrop!"
+              : "Connect a account eligible for the airdrop. Only MetaMask is supported as of now."}
           </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
             {web3Modal && web3Modal.cachedProvider && address

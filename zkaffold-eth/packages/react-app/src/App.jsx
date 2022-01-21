@@ -219,9 +219,7 @@ function App(props) {
       </div>
     );
   } else {
-    networkDisplay = (
-      <></>
-    );
+    networkDisplay = <></>;
   }
 
   const loadWeb3Modal = useCallback(async () => {
@@ -238,7 +236,6 @@ function App(props) {
       window.location.reload();
     }, 1);
   };
-
 
   useEffect(() => {
     if (web3Modal.cachedProvider) {
@@ -415,7 +412,6 @@ const web3Modal = new Web3Modal({
     },
   },
 });
-
 
 window.ethereum &&
   window.ethereum.on("chainChanged", chainId => {
