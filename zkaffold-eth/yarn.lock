@@ -6414,38 +6414,6 @@ cipher-base@^1.0.0, cipher-base@^1.0.1, cipher-base@^1.0.3:
     inherits "^2.0.1"
     safe-buffer "^5.0.1"
 
-circom@:
-  version "0.5.46"
-  resolved "https://registry.yarnpkg.com/circom/-/circom-0.5.46.tgz#031e96b1d83744103c0054eb1561bf191c6e8cdd"
-  integrity sha512-clvfqJudyBlHAubTu4dKY04dVgst8OxGS7SAxdbXKbGO2c6XGOzP2TSygNUmYHanLDvUgJpOqQYe/AkLt9x/1g==
-  dependencies:
-    chai "^4.2.0"
-    circom_runtime "0.1.12"
-    fastfile "0.0.18"
-    ffiasm "0.1.1"
-    ffjavascript "0.2.22"
-    ffwasm "0.0.7"
-    fnv-plus "^1.3.1"
-    r1csfile "0.0.16"
-    tmp-promise "^2.0.2"
-    wasmbuilder "0.0.10"
-
-circom@^0.5.42:
-  version "0.5.42"
-  resolved "https://registry.yarnpkg.com/circom/-/circom-0.5.42.tgz#96a456f9538f4425654df091d15e3158e9da2acc"
-  integrity sha512-v6+f9g3z2ia17NQvQmyZjvh8cE8O3GtxRE36KfJfx/a+s58Y7aEDWsUG+GFRJhp1ajiQELdj3NehY9vHSf5Rkg==
-  dependencies:
-    chai "^4.2.0"
-    circom_runtime "0.1.12"
-    fastfile "0.0.18"
-    ffiasm "0.1.1"
-    ffjavascript "0.2.22"
-    ffwasm "0.0.7"
-    fnv-plus "^1.3.1"
-    r1csfile "0.0.16"
-    tmp-promise "^2.0.2"
-    wasmbuilder "0.0.10"
-
 circom_runtime@0.1.12:
   version "0.1.12"
   resolved "https://registry.yarnpkg.com/circom_runtime/-/circom_runtime-0.1.12.tgz#e1a302c6fe8cec390f035c2e7a8496cfa7cfb4a2"

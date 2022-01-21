@@ -1,4 +1,5 @@
 # stealthdrop
+
 ## Anonymous Airdrops using ZK proofs
 
 [stealthdrop.xyz](https://stealthdrop.xyz) is an airdrop utility that enables ERC20 token airdrops on Ethereum that can be claimed by completely anonymous accounts.
@@ -13,18 +14,23 @@
 - Sign a message proving your ownership of the "public" wallet.
 - Switch to another (anonymous) account and claim your airdrop without linking your original account in any way.
 
-You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) which is deployed on the xDai chain. If your account is on the [ETH Leaderboard](https://ethleaderboard.xyz) or if you're one of our special friends, you should be able to claim the airdrop yourself!
+You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) which is deployed on the xDai chain. If your account is on the [ETH Leaderboard](https://ethleaderboard.xyz) or if you've played a part in the ZK ecosystem/bringing this projec to life, you might be able to claim the airdrop yourself!
+
+### Future airdropper flow:
+
+If you'd like to deploy your own zk airdrop up to a million people, all you need to do is change the merkle root and the message you have users sign ('zk-airdrop' for us), and redeploy our code. We precalculate the hours-long memory-intensive zkey computation for you, and the rest of the logic works out-of-the-box.
 
 # Why?
 
-To motivate this construction, we look at how airdrops currently work: Usually, protocols will set up airdrops that distribute a limited supply of ERC20 tokens to their team, early contributors, users and other people involved in the success of the protocol. While the underlying goal of such airdrops is to create a medium for governance for future decisions ([DeGov](https://vitalik.ca/general/2021/08/16/voting3.html) for DeFi), the limited supply creates interesting game theoretic conditions: FOMO and the promise of power establishes a "market value" for the cost of governance, and many end up trading their tokens at high valuations. The science behind this mechanism has been a hot topic of study right at the intersection of microeconomics and behavioral economics, and even has a name these days: [tokenomics](https://coinmarketcap.com/alexandria/article/what-is-tokenomics).
+To motivate this construction, consider how airdrops currently work: Usually, protocols will set up airdrops that distribute a limited supply of ERC20 tokens to their team, early contributors, users and other people involved in the success of the protocol. While the underlying goal of such airdrops is to create a medium for governance for future decisions ([DeGov](https://vitalik.ca/general/2021/08/16/voting3.html) for DeFi), the limited supply creates interesting game theoretic conditions: FOMO and the promise of power establishes a "market value" for the cost of governance, and many end up trading their tokens at high valuations. Due to interoperability of the ERC-20, its possible to decouple the market value of the token from voting control. The science behind coin voting mechanisms have been a hot topic of study right at the intersection of microeconomics and behavioral economics, and even has a name these days: [tokenomics](https://coinmarketcap.com/alexandria/article/what-is-tokenomics).
 
 Focusing on the DeGov enabled by these tokens, one fatal flaw in current token systems is the muddling between identity and governance. If everyone knows `vitalik.eth` voted "No" for a protocol proposal, how does that influence the opinion of the rest of the community? Does everyone still consider the impact of the proposal fairly and independently?
 
 <p>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/6984346/149878638-18c79ac2-a8fd-4122-9f00-a069ab76f108.png">
- 
+
 <em>Snapshot Labs shares everyone's votes publicly</em>
+
 </p>
 
 On the other end of the spectrum, when someone with a public identity deviates from the norm and casts a vote others in the community don't like, they end up exposing themselves to harassment on Twitter and other social media.
@@ -32,12 +38,14 @@ On the other end of the spectrum, when someone with a public identity deviates f
 <p>
 <img width="431" alt="image" src="https://user-images.githubusercontent.com/6984346/149878894-678988f2-f453-41de-b07d-a75ab6dc88b2.png">
 
-  <em>Everyone knows your vote</em>
+<em>Everyone knows your vote</em>
+
 </p>
 <p>
 <img width="606" alt="image" src="https://user-images.githubusercontent.com/6984346/149879079-d917b615-eba7-4fff-9809-de05d274250e.png">
 
-  <em>Everyone knows if you sell your token</em>
+<em>Everyone knows if you sell your token</em>
+
 </p>
 
 While it's arguable if such accountability is actually a positive attribute of these token systems, we think it's important to explore the alternative. In fact, real world elections probably don't enforce such peer pressure (beyond the occasional dinner party debates) for a good reason.
@@ -92,11 +100,11 @@ The onchain contract is relatively straightforward: we just check if a proof ver
 
 Notably, however, the current implementation rewards exactly one token to each address. An interesting extension to consider would be awarding multiple tokens to each address. A first idea might be to simply put the number of tokens each address should recieve in the Merkle Tree. But this is unfortunately _privacy-lossy_. If everyone has arbitrary different amount of tokens to claim, that narrows down the possible claiming accounts greatly! In crypto parlance, we'd be reducing the _anonymity set_ by doing so. We had a few other ideas for doing so, but none of them seemed too promising at the time. We'd be curious to hear people's thoughts on this.
 
-As you may have noticed, one of the hairiest problems for this construction is figuring out how to leave the entire set of eligible addresses public, but not allow those to be linked to the claiming anonymous addresses in process of generating the proof. 
+As you may have noticed, one of the hairiest problems for this construction is figuring out how to leave the entire set of eligible addresses public, but not allow those to be linked to the claiming anonymous addresses in process of generating the proof.
 
 # Who?
 
-We ([@Divide-By-0](https://github.com/Divide-By-0), [@nibnalin](https://github.com/nalinbhardwaj) and [@Adhyyan1252](https://github.com/Adhyyan1252)) built out this project over the course of a week during [Hack Lodge](https://hacklodge.org). The original idea of this construction came from [@gubsheep](https://github.com/gubsheep) and the [0xPARC community](https://0xparc.org).
+We ([Aayush (@Divide-By-0)](https://github.com/Divide-By-0), [@nibnalin](https://github.com/nalinbhardwaj) and [@Adhyyan1252](https://github.com/Adhyyan1252)) built out this project over the course of a week during [Hack Lodge](https://hacklodge.org). The original idea of this construction came from [@gubsheep](https://github.com/gubsheep) and the [0xPARC community](https://0xparc.org).
 
 The journey we shared in writing this project was long and windy (to say the least).
 
@@ -104,7 +112,7 @@ We started by installing Circom 2, the shiny new ZK-SNARK compiler, only to disc
 
 We took it upon ourselves to fix this. What followed was a day or two of debugging the Circom compiler, snarkjs and all of their dependencies. With a lot of help from @phated, we went from handwriting binary files to figure out what's broken (0/10 would not recommend) to writing out 3 PRs across circom/snarkjs that fix [all](https://github.com/iden3/circom_runtime/pull/16) [the](https://github.com/iden3/circom_runtime/pull/14) [issues](https://github.com/iden3/snarkjs/pull/121)! As a side effect, one of the PRs also reduces the snarkjs bundle size by a significant fraction, making for faster load times for in-browser proof verification.
 
-Finally having resolved all these issues, we got back to our own circuits. After numerous off-by-one bugs and other unexpected hitches (did you know that the MIMC hash function Tornado Cash uses is not the same as the one used by Dark Forest?), we finally had a working circuit. But, so far, we were omitting signature verification. You see, signature verification is quite a spectacle: It's 9.6million constraints! Even compiling the proving key for the circuit requires 40GB RAM!
+While Nalin was resolving these problems, Aayush was working on circuits, and general incompatibility with test code in js. After numerous off-by-one bugs and other unexpected hitches (did you know that the MIMC hash function Tornado Cash uses is not the same as the one used by Dark Forest?), we finally had a working circuit. But, so far, we were omitting signature verification. You see, signature verification is quite a spectacle: It's 9.6million constraints! Even compiling the proving key for the circuit requires 40GB RAM!
 
 So we got a beefy 3.7GHz, 128GB RAM dedicated server and started working with it. Interestingly enough, it turned out to be non-trivial to get the scripts to use the full capabilities of our beefy server. Despite setting node's `max-old-space-size` flag, we would reach around 7GB usage and the script would crash complaining about memory allocations. Yi Sun (one of the creators of the ECDSA circuit) pointed us to a rather [obscure trick](https://stackoverflow.com/questions/38558989/node-js-heap-out-of-memory/59923848#59923848) that resolved our issues. Incidentally, that StackOverflow answer is authored by jbaylina, one of the core contributors to snarkjs/circom. I can only imagine he was trying to do something similar to us when he discovered this. 🧐
 
@@ -113,7 +121,7 @@ While we were wading through the weeds generating the proving key on one end, Ad
 With each of these individual pieces: the circuits, the remote SNARK prover and the frontend working in reasonable forms, we took the leap into integration hell. Trying to put all these pieces together was almost a running joke with the kinds of bugs we were bumping into:
 
 1. It turns out the "canonical" signature format is the opposite between `libsecp256k1` and `openssl`, one of them uses S values less than 1/2 prime order, and the other one uses S values more than 1/2 prime order.
-2. When you make a request you can set your CORS mode to `no-cors` (accidentally) and any response you get will just not be visible to your code. 🤷‍♂️
+2. When you make a request you can set your CORS mode to `no-cors` (accidentally), and all the request data formatting gets stripped, so the request invisibly fails. 🤷‍♂️
 3. The only way to ask a wallet for your public key is to ask for a signature instead and run `ecrecover` on this signature. I have no idea why it's not just part of the standard API.
 
 Despite all these hiccups, we finally did get to a working implementation a few hours before demo time! It was a really fun experience hacking on something like this with a large group of people working on their own, equally impressive projects around us at HackLodge! I'll leave you with a blooper reel from our own project:
@@ -122,12 +130,14 @@ Despite all these hiccups, we finally did get to a working implementation a few 
 <img width="132" alt="Screenshot 2022-01-17 at 3 47 09 PM" src="https://user-images.githubusercontent.com/6984346/149874381-de66e8ec-594d-42e8-9f99-34b61f28a855.png">
 
 <em>No plan is complete without a good nap 😴</em>
+
 </p>
 
 <p>
 <img src="https://user-images.githubusercontent.com/6984346/149874407-aee0a9aa-cd8f-4220-a4b3-bc8731be8556.png" alt="commits" width="400"/>
 
-  <em>2AM commits do be like that sometimes</em>
+<em>2AM commits do be like that sometimes</em>
+
 </p>
 
 As previously mentioned, the ECDSA construction was implemented by members of the 0xPARC community and open-sourced just a few weeks ago: https://github.com/0xPARC/circom-secp256k1.

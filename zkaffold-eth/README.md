@@ -2,11 +2,26 @@
 
 # Run
 
-Download the right ptau from snarkjs GitHub, and place it in `../../powersoftau/powersOfTau28_hez_final_22.ptau`.
+You'll need Node 14 as well as circom 2, downloaded from the [circom2 installation guide](https://docs.circom.io/getting-started/installation/#installing-dependencies). `circom --help` should output help info.
+
+Download the size 24 ptau from [snarkjs GitHub](https://github.com/iden3/snarkjs), and place it in `packages/circom/powersoftau/powersOfTau28_hez_final_24.ptau`.
+
+Then, running these commands should create the zkey for the circuit.circom in the circom/circuits/airdrop directory.
+
+```
+yarn install
+yarn compcir airdrop
+```
+
+In the event of an error on the first line of the circom code, try `rm -rf packages/circom/node_modules/circom` and try again (that's the old circom version).
 
 Write and compile zero knowledge circuits with [circom](https://docs.circom.io/) and [snarkjs](https://github.com/iden3/snarkjs) in the `circom` workspace, develop smart contracts utilizing zero knowledge proofs with scaffold-eth.
 
 ## Commands
+
+#### `cd packages/circom && node scripts/test_generator.js`
+
+Sets the sample inputs to be the updated version. For instance, used to verify new zkey generation upon circuit modification.
 
 #### `draft`
 

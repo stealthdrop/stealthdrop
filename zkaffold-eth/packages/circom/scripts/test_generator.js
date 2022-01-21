@@ -125,7 +125,7 @@ async function generateTestCases() {
     console.log("Private key: ", proverPrivkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(10, [], { hashFunction: mimcfs.mimcHash(0) });
+    const tree = new MerkleTree(20, [], { hashFunction: mimcfs.mimcHash(0) });
 
     const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
     // const pedersenHash = (data) =>
@@ -166,6 +166,7 @@ async function generateTestCases() {
       null,
       "\t"
     );
+    console.log(json);
     fs.writeFile("circuits/airdrop/inputs/input_" + idx.toString() + ".json", json, "utf8", () => {});
   }
 }
