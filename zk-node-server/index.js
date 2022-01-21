@@ -1,9 +1,9 @@
 const express = require("express");
 const snarkjs = require("snarkjs");
-const hash = require('object-hash');
+const hash = require("object-hash");
 const fs = require("fs");
-const { spawn } = require('child_process');
-const cors = require('cors');
+const { spawn } = require("child_process");
+const cors = require("cors");
 
 const app = express();
 
@@ -23,42 +23,30 @@ app.get("/slow", (req, res) => {
 });
 
 var currentProcessesRunning = new Set();
+var queue = [];
 
 var outputData = {};
 
-app.use(cors({origin: "*"}));
+app.use(cors({ origin: "*" }));
 
-app.post("/generate_proof", function (req, res) {
-  const input = req.body;
-  const inputHash = hash(input);
-  const inputFileName = `inputs/${inputHash}.json`;
-  console.log("input", input);
-  console.log("inputFileName", inputFileName);
+const inQueue = (hash) => {
+  return !!queue.find((item) => item.hash === hash);
+};
 
-  if (currentProcessesRunning.has(inputHash) || !!outputData[inputHash]) {
-    res.json({ id: inputHash });
-    return;
-  }
-
-  if (currentProcessesRunning.size > 3) {
-    res.status(404).send("Too many processes running");
-    return;
-  }
-
-  fs.writeFileSync(inputFileName, JSON.stringify(input));
-
+const startNewProcess = (hash) => {
+  const inputFileName = `inputs/${hash}.json`;
   // spawn a child process to run the proof generation
   const prover = spawn("node", ["prover.js", inputFileName], {
     timeout: 60 * 60 * 1000,
   });
   if (!prover.pid) {
     res.status(500);
-    return;
+    return false;
   }
-  currentProcessesRunning.add(inputHash);
+  currentProcessesRunning.add(hash);
   prover.stderr.on("data", (data) => {
-    outputData[inputHash] = data.toString();
-    console.log(`stderr: ${inputHash} :  ${data}`);
+    outputData[hash] = data.toString();
+    console.log(`stderr: ${hash} :  ${data}`);
     console.log("outputData", outputData);
   });
 
@@ -67,10 +55,55 @@ app.post("/generate_proof", function (req, res) {
   });
 
   prover.on("close", (code) => {
-    currentProcessesRunning.delete(inputHash);
+    currentProcessesRunning.delete(hash);
+    processQueue();
     console.log(`child process exited with code ${code}`);
   });
+  return true;
+};
 
+const processQueue = () => {
+  if (currentProcessesRunning.size >= 5) return null;
+
+  // remove duplicates from queue
+  queue = queue.filter(
+    (item, index, self) => index === self.findIndex((t) => t === item)
+  );
+
+  // get top element from queue
+  const hash = queue.shift();
+  if (!hash) return;
+
+  // check if already in process
+  if (currentProcessesRunning.has(hash)) return;
+  if (!!outputData[hash]) return;
+
+  const status = startNewProcess(hash);
+  return status;
+};
+
+app.post("/generate_proof", function (req, res) {
+  const input = req.body;
+  const inputHash = hash(input);
+  const inputFileName = `inputs/${inputHash}.json`;
+  console.log("input", input);
+  console.log("inputFileName", inputFileName);
+
+  if (
+    currentProcessesRunning.has(inputHash) ||
+    !!outputData[inputHash] ||
+    inQueue(inputHash)
+  ) {
+    res.json({ id: inputHash });
+    return;
+  }
+
+  // otherwise add to queue
+  // write to file
+  // and return id
+  fs.writeFileSync(inputFileName, JSON.stringify(input));
+  queue.push(inputHash);
+  const status = processQueue();
   res.json({ id: inputHash });
 });
 
@@ -78,12 +111,19 @@ app.post("/result", (req, res) => {
   console.log("outputData", outputData);
   const id = req.body["id"];
   const result = outputData[id];
+
   if (result) {
-    res.send(result);
-  } else if (currentProcessesRunning.has(id)) {
+    try {
+      JSON.parse(result);
+      res.send(result);
+    } catch (e) {
+      console.log("error", e);
+      res.status(404).send("ERROR");
+    }
+  } else if (currentProcessesRunning.has(id) || inQueue(id)) {
     res.status(400).send("Process still running");
   } else {
-    res.status(404).send("Not found");
+    res.status(404).send("ERROR");
   }
 });
 
@@ -101,7 +141,7 @@ app.post("/generate_proof_slow", async function (req, res) {
   res.json(genCalldata);
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.listen(port, () =>
   console.log(`Server running on ${port}, http://localhost:${port}`)
