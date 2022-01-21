@@ -104,7 +104,7 @@ export default function Withdraw({
     console.log("inputss", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
-    const returnData = await postData("http://45.76.66.251/generate_proof", inputs);
+    const returnData = await postData("https://backend.stealthdrop.xyz/generate_proof", inputs);
     if (!returnData.ok) {
       alert("Error generating proof, please try again later");
       return;
@@ -115,7 +115,7 @@ export default function Withdraw({
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
-      const res = await postData("http://45.76.66.251/result", { id: processId });
+      const res = await postData("https://backend.stealthdrop.xyz/result", { id: processId });
       if (res.status === 200) {
         setProof(await res.json());
         clearInterval(intervalId);
