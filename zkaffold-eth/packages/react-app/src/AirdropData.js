@@ -4,6 +4,7 @@ import { mimcHash } from "./mimc";
 const merkleTreeLevels = 10;
 
 export const getPath = address => {
+
   const hashedLeaves = merkleTreeLeaves.map(leaf => mimcHash(1)(leaf));
   const merkleTree = new MerkleTree(merkleTreeLevels, hashedLeaves, { hashFunction: mimcHash(0) });
   let index = merkleTreeLeaves.findIndex(leaf => leaf === address.toLowerCase());
@@ -17,7 +18,9 @@ export const isEligible = address => {
   return !!merkleTreeLeaves.find(leaf => leaf === address.toLowerCase());
 };
 
-const merkleTreeLeaves = ["0xb6aa5a1aa37a4195725cdf1576dc741d359b56bd",
+const merkleTreeLeavesAnyCase = [
+    "0xA6AB4C9772bB79eda0D3367ca2803e9607973018",
+    "0xb6aa5a1aa37a4195725cdf1576dc741d359b56bd",
     "0x3c6aeff92b4b35c2e1b196b57d0f8ffb56884a17",
     "0x7b775927fd637b3a53d0ee9e85321005666f3d49",
     "0x89244834b6defbfa8698cf52d4143c84f35a6c20",
@@ -505,3 +508,5 @@ const merkleTreeLeaves = ["0xb6aa5a1aa37a4195725cdf1576dc741d359b56bd",
     "0xbb483e8976cd690ac5f1e82bcc1f3a32012ccc97",
     "0xa812c854be9e3558b4f5fdcc83eb3c9f53c27b23"
 ];
+
+const merkleTreeLeaves = merkleTreeLeavesAnyCase.map(x => x.toLowerCase());
