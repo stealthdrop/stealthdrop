@@ -142,7 +142,7 @@ app.post("/generate_proof_slow", async function (req, res) {
   res.json(genCalldata);
 });
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 
 app.listen(port, () =>
   console.log(`Server running on ${port}, http://localhost:${port}`)
