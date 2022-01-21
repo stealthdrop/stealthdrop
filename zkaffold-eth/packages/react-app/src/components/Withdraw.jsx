@@ -194,7 +194,7 @@ export default function Withdraw({
           <Tekst>
             {eligibility
               ? "You're eligible for the airdrop!"
-              : "Connect a account eligible for the airdrop. Only MetaMask is supported as of now."}
+              : "Connect a wallet eligible for the airdrop. Only MetaMask is supported as of now."}
           </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
             {web3Modal && web3Modal.cachedProvider && address
