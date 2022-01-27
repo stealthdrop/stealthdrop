@@ -24,6 +24,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Subgraph } from "./views";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
 import Withdraw from "./components/Withdraw";
+import FaucetHint from "./components/Faucet";
 import NewAirdrop from "./components/NewAirdrop";
 import { ethers } from "ethers";
 /*
@@ -46,7 +47,7 @@ import { ethers } from "ethers";
 */
 
 /// 📡 What chain are your contracts deployed to?
-const targetNetwork = NETWORKS["ropsten"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const targetNetwork = NETWORKS["xdai"]; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = true;
@@ -300,7 +301,7 @@ function App(props) {
             */}
 
             <Contract
-              name="ZKT"
+              name="SDT"
               signer={userProvider.getSigner()}
               provider={localProvider}
               address={address}
@@ -327,6 +328,8 @@ function App(props) {
               logoutOfWeb3Modal={logoutOfWeb3Modal}
               mainnetProvider={mainnetProvider}
               provider={userProvider}
+              transactor={tx}
+              gasPrice={gasPrice}
             />
           </Route>
           <Route exact path="/airdrop">
@@ -340,7 +343,7 @@ function App(props) {
         </Switch>
       </BrowserRouter>
 
-      {/* 👨‍💼 Your account is in the top right with a wallet at connect options
+      { /* 👨‍💼 Your account is in the top right with a wallet at connect options
       <div style={{ position: "fixed", textAlign: "right", right: 0, top: 0, padding: 10 }}>
         <Account
           address={address}
@@ -353,10 +356,11 @@ function App(props) {
           logoutOfWeb3Modal={logoutOfWeb3Modal}
           blockExplorer={blockExplorer}
         />
-      </div> */}
+        <FaucetHint localProvider={localProvider} targetNetwork={targetNetwork} address={address} />
+      </div>
 
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-      {/* <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
+      🗺 Extra UI like gas price, eth price, faucet, and support:
+      <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
         <Row align="middle" gutter={[4, 4]}>
           <Col span={8}>
             <Ramp price={price} address={address} networks={NETWORKS} />
