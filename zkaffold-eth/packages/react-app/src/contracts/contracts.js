@@ -1,1 +1,1 @@
-module.exports = ["ZKT"];
+module.exports = ["SDT"];

@@ -13,19 +13,13 @@ import { useContractLoader } from "../hooks";
 import { Transactor } from "../helpers";
 import { CheckCircle, Circle, GitHub, XCircle } from "react-feather";
 import { useLookupAddress } from "../hooks";
+import { useGasPrice } from "eth-hooks";
 
 const signText = "zk-airdrop";
 const signTextHash = "0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de";
 
-const exampleProof = [
-  [0, 1],
-  [
-    [2, 3],
-    [4, 5],
-  ],
-  [6, 7],
-  [8, 9, 10, 11],
-];
+const backendUrl = "https://backend.stealthdrop.xyz/";
+// http://localhost:3001/"; // http://45.76.66.251/
 
 async function postData(url = "", data = {}) {
   // Default options are marked with *
@@ -49,6 +43,8 @@ export default function Withdraw({
   logoutOfWeb3Modal,
   mainnetProvider,
   provider,
+  transactor,
+  gasPrice
 }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
@@ -57,8 +53,6 @@ export default function Withdraw({
 
   const ensName = useLookupAddress(mainnetProvider, address);
   const contracts = useContractLoader(provider);
-
-  const tx = Transactor(provider, null);
 
   const displayAddress = address => {
     if (!address) {
@@ -80,10 +74,6 @@ export default function Withdraw({
     console.log("msgTransaction", msgTransaction);
     const msgHash = ethers.utils.hashMessage(signText);
     const publicKey = ethers.utils.recoverPublicKey(msgHash, ethers.utils.arrayify(msgTransaction));
-    // const pk = ethers.utils.recoverPublicKey(
-    //   ethers.utils.arrayify("0x52a0832a7b7b254efb97c30bb6eaea30ef217286cba35c8773854c8cd41150de"),
-    //   msgTransaction,
-    // );
     setSignature({ sign: msgTransaction, address, publicKey });
     console.log("hash", msgHash);
     console.log("verify", ethers.utils.verifyMessage(signText, msgTransaction));
@@ -104,24 +94,31 @@ export default function Withdraw({
     console.log("inputss", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
-    const returnData = await postData("https://backend.stealthdrop.xyz/generate_proof", inputs);
+    const returnData = await postData(backendUrl + "generate_proof", inputs);
     if (!returnData.ok) {
       alert("Error generating proof, please try again later");
       return;
     }
     const returnJSON = await returnData.json();
-    setProofStatus(returnJSON && returnJSON["id"] ? "GENERATING" : "ERROR");
+    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
     const intervalId = setInterval(async () => {
-      const res = await postData("https://backend.stealthdrop.xyz/result", { id: processId });
+      const res = await postData(backendUrl + "result", { id: processId });
       if (res.status === 200) {
-        setProof(await res.json());
-        clearInterval(intervalId);
-        setProofStatus("GENERATED");
+        const json = await res.json();
+        if (!json) {
+          console.log("error", res);
+          clearInterval(intervalId);
+          setProofStatus("ERROR");
+        } else {
+          setProof(await res.json());
+          clearInterval(intervalId);
+          setProofStatus("GENERATED");
+        }
       } else if (res.status === 400) {
-        setProofStatus("GENERATING");
+        setProofStatus("LOADING");
       } else {
         console.log("error", res);
         clearInterval(intervalId);
@@ -142,23 +139,39 @@ export default function Withdraw({
     if (!proof) {
       return;
     }
-    const contract = contracts ? contracts["ZKT"] : "";
+    const contract = contracts ? contracts["SDT"] : "";
     if (!contract) {
       console.log("contract not found");
       return;
     }
-    const pi_a = proof["pi_a"];
-    const pi_b = proof["pi_b"];
-    const pi_c = proof["pi_c"];
-    const inputs = proof["inputs"];
     console.log("claim: ", proof, contract);
     const claimTokens = contract.connect(signer)["claimTokens"];
-    const returned = await tx(claimTokens(pi_a, pi_b, pi_c, inputs));
+    const returned = await transactor(claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]));
     console.log("returned", returned);
   };
 
+  const chestQuota = useMemo(async () => {
+    const contract = contracts ? contracts["SDT"] : "";
+    if (!proof || !contract || !gasPrice) {
+      console.log("proof/contract not found");
+      return false;
+    }
+    const quota = await contract.connect(signer)["getChestQuota"]();
+    const claimTokensGas = await contract.estimateGas.claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]);
+    console.log("gasPrice", gasPrice);
+    console.log("claimTokensGas", claimTokensGas);
+    console.log("estimatedGasPrice", claimTokensGas * gasPrice);
+    console.log("quota", quota);
+    return claimTokensGas * gasPrice * 5 < quota;
+  }, [contracts, proof, gasPrice]);
+
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
+      {/* {address && (
+        <Bootoon onClick={logoutOfWeb3Modal} style={{ width: "35px", marginRight: "auto" }}>
+          Logout
+        </Bootoon>
+      )} */}
       <HeaderBox>
         <div style={{ display: "flex" }}>
           <Heading style={{ fontSize: "64px", width: "100%", letterSpacing: "1px" }}>
@@ -181,7 +194,9 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>
-            {eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop."}
+            {eligibility
+              ? "You're eligible for the airdrop!"
+              : "Connect a wallet eligible for the airdrop."}
           </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
             {web3Modal && web3Modal.cachedProvider && address
@@ -220,7 +235,7 @@ export default function Withdraw({
               You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.
             </Tekst>
           )}
-          {!address && <Tekst>Not connected to any wallet. Switch your account through your wallet.</Tekst>}
+          {!address && <Tekst>Not connected to any wallet. Select a wallet to proceed.</Tekst>}
         </Collapse>
       </Box>
 
@@ -242,9 +257,17 @@ export default function Withdraw({
           <p style={{ marginBottom: "0px" }}>5. Claim</p>
         </Heading>
         <Collapse collapsed={step != 5}>
-          <Tekst>
-            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
-          </Tekst>
+          {chestQuota ? (
+            <Tekst>
+              Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
+              The contract treasury chest currently has enough xDai to support gasless transactions. Obtain some funds from a faucet and set your gas fees to minimal possible.
+            </Tekst>
+          ) : (
+            <Tekst>
+              Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
+              The treasury chest currently does <textit>not</textit> have enough xDai to support gasless transactions, pay your own gas.
+            </Tekst>
+          )}
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
       </Box>
