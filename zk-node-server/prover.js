@@ -61,9 +61,6 @@ const main = async () => {
   const witness_file = inputFile + '_witness';
   console.log("witness starting");
 
-  // sleep fro 2 seconds
-  await new Promise((resolve) => setTimeout(resolve, 20000));
-
   await generateWitness(input, witness_file);
   console.log("outside await exiting");
   const { proof, publicSignals } = await snarkjs.groth16.prove(
