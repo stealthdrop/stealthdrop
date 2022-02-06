@@ -14,7 +14,7 @@
 - Sign a message proving your ownership of the "public" wallet.
 - Switch to another (anonymous) account and claim your airdrop without linking your original account in any way.
 
-You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) on the xDai chain! If you've played [DarkForest](https://zkga.me) with an address that's linked to any Twitter account (or you're a special friend of ours from [ETHUni](https://www.ethuniversity.org)/[HackLodge](https://hacklodge.org)), you can claim the token yourself! What you do with these tokens is up to you, but understand that we only intend for this token to be a proof of concept for what's possible! None of our code is audited or recommended for production use without serious considerations.
+You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) on the xDai chain! If you've played [DarkForest](https://zkga.me) with an address that's linked to any Twitter account (or contributed to community at [ETHUni](https://www.ethuniversity.org)/[HackLodge](https://hacklodge.org)), you can claim the token yourself! What you do with these tokens is up to you, but understand that we only intend for this token to be a proof of concept for what's possible. None of our code is audited or recommended for production use without serious considerations.
 
 In this post, we'll dive into the motivation behind making StealthDrop, and explain the inner workings of the application.
 
@@ -22,7 +22,7 @@ In this post, we'll dive into the motivation behind making StealthDrop, and expl
 
 To motivate this construction, let's look at how airdrops currently work: Usually, protocols will set up airdrops that distribute a limited supply of ERC20 tokens to their team, early contributors, users and others involved in the success of the protocol. While often, the underlying goal of such airdrops is to create a medium for governance for future decisions ([DeGov](https://vitalik.ca/general/2021/08/16/voting3.html) for DeFi), the limited supply creates interesting game theoretic conditions: FOMO and the promise of power establishes a "market value" for the cost of governance, and many end up trading their tokens at high valuations. The science behind coin voting mechanisms have been a hot topic of study right at the intersection of microeconomics and behavioral economics, and even has a name these days: [tokenomics](https://coinmarketcap.com/alexandria/article/what-is-tokenomics).
 
-Focusing on the DeGov enabled by these tokens, one fatal flaw in current token systems is the muddling between identity and governance. If everyone knows `vitalik.eth` voted "No" for a protocol proposal, how does that influence the opinion of the rest of the community? Does everyone still consider the impact of the proposal fairly and independently?
+Focusing on the DeGov enabled by these tokens, one fatal flaw in current token systems is the muddling between identity and governance. If everyone knows `vitalik.eth` voted "No" for a protocol proposal, how does that influence the opinion of the rest of the community? Does everyone still consider the impact of the proposal fairly and independently? 
 
 <p>
 <img width="400" alt="image" src="https://user-images.githubusercontent.com/6984346/149878638-18c79ac2-a8fd-4122-9f00-a069ab76f108.png">
@@ -46,7 +46,7 @@ On the other end of the spectrum, when someone with a public identity deviates f
 
 </p>
 
-While it's arguable if such accountability is actually a positive attribute of these token systems, we think it's important to explore the alternative. In fact, real world elections probably don't enforce such peer pressure (beyond the occasional dinner party debates) for a good reason.
+Even if votes are hidden under [MACI](https://github.com/appliedzkp/maci), knowing whether Vitalik voted on the proposal could change how much thought people put into their own vote. While it's arguable if such accountability is actually a positive attribute of these token systems, we think it's important to explore the alternative. In fact, real world elections don't enforce such peer pressure (beyond the occasional dinner party debates), likely for a good reason.
 
 With this vision, we present stealthdrop: an airdrop that lets addresses claim their airdrops completely anonymously. We enable truly anonymous governance by effectively letting completely virgin wallets claim an airdrop on behalf of other wallets. Nobody even knows if the original wallet has claimed their airdrop or not.
 
@@ -94,7 +94,7 @@ Not so fast though, another interesting technical detail of ECDSA construction i
 
 ## Bringing it together
 
-With the bag of tricks we've been working up to in the previous sections, you might expect that we're done with the hairiest parts in the setup of the ZK proof. But it is never that simple. The bigger technical challenge ahead of us was the actual generation of proofs. Remember how we mentioned using ECDSA signature verification meant that we had a circuit with 9.6 million constraints? Yeah, that's a problem. Even compiling the proving key for a circuit this big requires 40GB RAM and a 100GB+ SWAP!
+With the bag of tricks we've been working up to in the previous sections, you might expect that we're done with the hairiest parts in the setup of the ZK proof. But it is never that simple. The bigger technical challenge ahead of us was the actual generation of proofs. Remember how we mentioned using ECDSA signature verification meant that we had a circuit with 9.6 million constraints? Even compiling the proving key for a circuit this big requires 40GB RAM and a 100GB+ SWAP! Luckily, this proving key only needs to be calculated once, and will work for every zk airdrop with our construction in the future.
 
 So yeah, we got a beefy 3.7GHz, 128GB RAM dedicated server that cost \~$15/day and started working with it. It turned out to be non-trivial to even get the compiler to use the full capabilities of our beefy server. Despite setting node's `max-old-space-size` flag, we would reach around 7GB RAM usage and the script would crash complaining about memory allocations. Yi Sun (one of the creators of the ECDSA circuit) pointed us to a rather [obscure trick](https://stackoverflow.com/questions/38558989/node-js-heap-out-of-memory/59923848#59923848) that resolved our issues. Incidentally, that StackOverflow answer is authored by jbaylina, one of the core contributors of snarkjs/circom. I can only imagine he was trying to do something similar to us when he discovered this trick. 🧐
 
@@ -102,9 +102,9 @@ While generating the proving key is one step in the direction, _using_ the provi
 
 We had some ideas to figure out in-browser proving: What if we broke the proving key into small chunks, did whatever computation necessary for snarkjs, and garbage collect all the open buffers away. Well, we implemented exactly that: [Chunked zkeys](https://github.com/nalinbhardwaj/snarkjs/commit/d1c10a6373c02eaa214968da96e2514ddc8c8b92)! This enables splitting of the proving key file from a single \~6.5GB file to 10 pieces, each in its own file (the largest of which is \~2.3GB). Still, this is not enough to make the leap to in-browser proof generation: most computers/browsers would still be unable to support the \~4GB RAM requirement and the atleast \~50gb SWAP requirement.
 
-We reeaallly wanted to put these proofs in browser, but I think we're just a few years too early to be able to do that -- in total, we likely need a reduction of at least one or two orders of magnitude, and it's unlikely we'd be able to squeeze this out in the current state of zk SNARK tooling. Nonetheless, it is quite exciting to be able to make a project that runs into the edges of what's possible with the current box of production zk-SNARKs this way!
+We reeaallly wanted to put these proofs in browser, but I think we're just a few years too early to be able to do that. Even using IndexedDB to use disc space as memory, we would still likely need a reduction of at least one or two orders of magnitude, and it's unlikely we'd be able to squeeze this out in the current state of zk SNARK tooling. Nonetheless, it is quite exciting to be able to make a project that runs into the edges of what's possible with the current box of production zk-SNARKs this way!
 
-Ultimately, we decided to go with the _easier_ route of setting up a remote SNARK prover. Using a beefy server and a really clever queue based implementation -- one that manages long running proving jobs with no external dependencies and no overhead from Redis or other management databases (unlike standard NodeJS libraries like [Bull](https://github.com/OptimalBits/bull)).
+Ultimately, we decided to go with the _easier_ route of setting up a remote SNARK prover. Using a beefy server and a really clever queue based implementation -- one that manages long running proving jobs with no external dependencies and no overhead from Redis or other management databases (unlike standard NodeJS libraries like [Bull](https://github.com/OptimalBits/bull)). To ensure that we are not a trusted, centralized point of failure in the protocol, we provide all the infrastructure for you to setup your own remote snark prover (we encourage you to try it out!).
 
 ## On-chain contract
 
@@ -144,7 +144,7 @@ The journey we shared in writing this project was long and windy (to say the lea
 3. The only way to ask MetaMask/WalletConnect for your public key is to ask for a signature instead and run `ecrecover` on this signature. I have no idea why it's not just part of the standard API.
 4. Did you know that the MIMC hash function Tornado Cash uses is not the same as the MIMC hash function used by Dark Forest? 🤷‍♂️
 
-Despite all the hiccups, we had a lot of fun and did get to a working implementation a few hours before demo time! It was a great experience hacking on something like this with a large group of people working on their own, equally impressive projects around us at HackLodge! I'll leave you with a blooper reel from our own project:
+Despite all the hiccups, we had a lot of fun and did get to a working implementation a few hours before demo time! It was a great experience hacking on something like this with a large group of people working on their own, equally impressive [projects around us](https://twitter.com/smsunarto/status/1483202893826064384) at HackLodge! I'll leave you with a blooper reel from our own project:
 
 <p>
 <img width="132" alt="Screenshot 2022-01-17 at 3 47 09 PM" src="https://user-images.githubusercontent.com/6984346/149874381-de66e8ec-594d-42e8-9f99-34b61f28a855.png">
@@ -162,6 +162,6 @@ Despite all the hiccups, we had a lot of fun and did get to a working implementa
 
 As previously mentioned, the ECDSA construction was implemented by members of the 0xPARC community and open-sourced just a few weeks ago: https://github.com/0xPARC/circom-secp256k1.
 
-The Merkle Tree construction and other primitives were strongly inspired by the Tornado Cash protocol and its code: https://github.com/tornadocash.
+The Merkle Tree construction and other primitives were strongly inspired by the Tornado Cash protocol and its code: https://github.com/tornadocash. While there are one or two other repos that claim to do zk airdrops, we haven't seen any other repos that came before ours, succesfully block double spend attacks, or allow non-interactive airdrops (i.e. to any address without requiring a specific signature first).
 
 If you'd like to run your own remote SNARK prover or set up your own airdrop, take a look at [USAGE.md](./USAGE.md) for more information.
