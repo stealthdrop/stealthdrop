@@ -14,7 +14,7 @@
 - Sign a message proving your ownership of the "public" wallet.
 - Switch to another (anonymous) account and claim your airdrop without linking your original account in any way.
 
-You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) on the xDai chain! If you've played DarkForest with an address that's linked to any Twitter account (or you're a special friend of ours from ETHUni/HackLodge), you can claim the token yourself! What you do with these tokens is up to you, but understand that we only intend for this token to be a proof of concept for what's possible! None of our code is audited or recommended for production use without serious considerations.
+You can play around with the demo yourself on [stealthdrop.xyz](https://stealthdrop.xyz) on the xDai chain! If you've played [DarkForest](https://zkga.me) with an address that's linked to any Twitter account (or you're a special friend of ours from [ETHUni](https://www.ethuniversity.org)/[HackLodge](https://hacklodge.org)), you can claim the token yourself! What you do with these tokens is up to you, but understand that we only intend for this token to be a proof of concept for what's possible! None of our code is audited or recommended for production use without serious considerations.
 
 In this post, we'll dive into the motivation behind making StealthDrop, and explain the inner workings of the application.
 
@@ -135,7 +135,7 @@ As a follow up from the work on chunked proving keys and these compiler fixes, w
 
 # Who?
 
-We ([Aayush (@Divide-By-0)](https://github.com/Divide-By-0), [@nibnalin](https://github.com/nalinbhardwaj) and [@Adhyyan1252](https://github.com/Adhyyan1252)) built out this project over the course of a week during [Hack Lodge](https://hacklodge.org). The original idea of this construction came from [@gubsheep](https://github.com/gubsheep) and the [0xPARC community](https://0xparc.org).
+We ([Aayush (@Divide-By-0)](https://github.com/Divide-By-0), [@nibnalin](https://github.com/nalinbhardwaj) and [@Adhyyan1252](https://github.com/Adhyyan1252)) built out this project over the course of a week during [Hack Lodge](https://hacklodge.org). The original idea of this construction came from [@gubsheep](https://github.com/gubsheep), [Yi Sun](https://github.com/yi-sun) and the [0xPARC community](https://0xparc.org).
 
 The journey we shared in writing this project was long and windy (to say the least). Besides the very real technical challenges, there was almost a running joke with the kinds of bugs we bumped into:
 
@@ -163,3 +163,5 @@ Despite all the hiccups, we had a lot of fun and did get to a working implementa
 As previously mentioned, the ECDSA construction was implemented by members of the 0xPARC community and open-sourced just a few weeks ago: https://github.com/0xPARC/circom-secp256k1.
 
 The Merkle Tree construction and other primitives were strongly inspired by the Tornado Cash protocol and its code: https://github.com/tornadocash.
+
+If you'd like to run your own remote SNARK prover or set up your own airdrop, take a look at [USAGE.md](./USAGE.md) for more information.
