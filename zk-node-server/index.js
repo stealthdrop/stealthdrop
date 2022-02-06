@@ -30,11 +30,13 @@ var outputData = {};
 app.use(cors({ origin: "*" }));
 
 const inQueue = (hash) => {
-  return !!queue.find((item) => item.hash === hash);
+  // check if hash is in queue
+  return queue.includes(hash);
 };
 
 const startNewProcess = (hash) => {
   const inputFileName = `inputs/${hash}.json`;
+  const witnessFileName = `inputs/${hash}.json_witness`;
   // spawn a child process to run the proof generation
   const prover = spawn("node", ["prover.js", inputFileName], {
     timeout: 60 * 60 * 1000,
@@ -48,6 +50,11 @@ const startNewProcess = (hash) => {
     outputData[hash] = data.toString();
     console.log(`stderr: ${hash} :  ${data}`);
     console.log("outputData", outputData);
+    currentProcessesRunning.delete(hash);
+    processQueue();
+    // delete the relevant files in inputs folder
+    fs.unlinkSync(inputFileName);
+    fs.unlinkSync(witnessFileName);
   });
 
   prover.stdout.on("data", (data) => {
@@ -58,12 +65,14 @@ const startNewProcess = (hash) => {
     currentProcessesRunning.delete(hash);
     processQueue();
     console.log(`child process exited with code ${code}`);
+    fs.unlinkSync(inputFileName);
+    fs.unlinkSync(witnessFileName);
   });
   return true;
 };
 
 const processQueue = () => {
-  if (currentProcessesRunning.size >= 5) return null;
+  if (currentProcessesRunning.size >= 2) return null;
 
   // remove duplicates from queue
   queue = queue.filter(
@@ -122,8 +131,13 @@ app.post("/result", (req, res) => {
       res.status(404).send("ERROR");
     }
   } else if (currentProcessesRunning.has(id) || inQueue(id)) {
+    console.log("waiting for result");
+    console.log("currentProcessesRunning", currentProcessesRunning);
     res.status(400).send("Process still running");
   } else {
+    console.log("ERROR! result not found", id, queue);
+    // print outputdata keys
+    console.log("outputData", outputData);
     res.status(404).send("ERROR");
   }
 });
