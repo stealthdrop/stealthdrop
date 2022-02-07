@@ -40,8 +40,8 @@ On the other end of the spectrum, when someone with a public identity deviates f
 
 </p>
 <p>
-<img width="606" alt="image" src="https://user-images.githubusercontent.com/6984346/149879079-d917b615-eba7-4fff-9809-de05d274250e.png">
-
+<img width="593" alt="image" src="https://user-images.githubusercontent.com/6984346/152887131-3a2d2b3b-3903-42d5-8ea7-97d760e39867.png">
+  
 <em>Everyone knows if you sell your token</em>
 
 </p>
