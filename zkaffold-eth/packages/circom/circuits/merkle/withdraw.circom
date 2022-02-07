@@ -28,7 +28,7 @@ template Withdraw(levels, n, k) {
 
     component addressMimc = MiMCSponge(1, 220, 1);
     addressMimc.ins[0] <== addressGen.address;
-    addressMimc.k <== 1;
+    addressMimc.k <== 123;
 
     log(addressMimc.outs[0]);
 

@@ -11,7 +11,7 @@ template HashLeftRight() {
     component hasher = MiMCSponge(2, 220, 1);
     hasher.ins[0] <== left;
     hasher.ins[1] <== right;
-    hasher.k <== 0;
+    hasher.k <== 123;
     hash <== hasher.outs[0];
 }
 
