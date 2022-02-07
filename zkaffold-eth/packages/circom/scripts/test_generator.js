@@ -167,7 +167,10 @@ async function generateTestCases() {
       "\t"
     );
     console.log(json);
-    fs.writeFile("circuits/airdrop/inputs/input_" + idx.toString() + ".json", json, "utf8", () => {});
+    fs.writeFile("./circuits/airdrop/inputs/input_" + idx.toString() + ".json", json, "utf8", function (err) {
+      if (err) throw err;
+      console.log("Saved!");
+    });
   }
 }
 
