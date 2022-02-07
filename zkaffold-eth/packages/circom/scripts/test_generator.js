@@ -125,14 +125,14 @@ async function generateTestCases() {
     console.log("Private key: ", proverPrivkey);
 
     // Generate merkle tree and path
-    const tree = new MerkleTree(20, [], { hashFunction: mimcfs.mimcHash(0) });
+    const tree = new MerkleTree(20, [], { hashFunction: mimcfs.mimcHash(123) });
 
-    const mimc = mimcfs.mimcHash(1)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
+    const mimc = mimcfs.mimcHash(123)(r_array[0], r_array[1], r_array[2], s_array[0], s_array[1], s_array[2]);
     // const pedersenHash = (data) =>
     //   circomlib.babyJub.unpackPoint(circomlib.pedersenHash.hash(data))[0];
     const nullifierHash = mimc;
 
-    const treeLeaf = mimcfs.mimcHash(1)(BigInt(proverWallet.address));
+    const treeLeaf = mimcfs.mimcHash(123)(BigInt(proverWallet.address));
     console.log("treeLeaf", treeLeaf);
     tree.insert(treeLeaf);
     console.log("claimerHexAddress", claimerHexAddress);
@@ -141,7 +141,7 @@ async function generateTestCases() {
     const { pathElements, pathIndices } = tree.path(0);
     console.log("pathElements", pathElements);
     console.log("pathIndices", pathIndices);
-    const mimcleaves = mimcfs.mimcHash(0)(treeLeaf, BigInt(pathElements[0]));
+    const mimcleaves = mimcfs.mimcHash(123)(treeLeaf, BigInt(pathElements[0]));
     console.log("mimcleaves", mimcleaves);
     // for (const sister in pathElements) {
     //   pathElements[sister] = intToHex(pathElements[sister]);
@@ -167,7 +167,10 @@ async function generateTestCases() {
       "\t"
     );
     console.log(json);
-    fs.writeFile("circuits/airdrop/inputs/input_" + idx.toString() + ".json", json, "utf8", () => {});
+    fs.writeFile("./circuits/airdrop/inputs/input_" + idx.toString() + ".json", json, "utf8", function (err) {
+      if (err) throw err;
+      console.log("Saved!");
+    });
   }
 }
 
