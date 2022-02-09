@@ -113,7 +113,7 @@ export default function Withdraw({
           clearInterval(intervalId);
           setProofStatus("ERROR");
         } else {
-          setProof(await res.json());
+          setProof(json);
           clearInterval(intervalId);
           setProofStatus("GENERATED");
         }
@@ -257,17 +257,10 @@ export default function Withdraw({
           <p style={{ marginBottom: "0px" }}>5. Claim</p>
         </Heading>
         <Collapse collapsed={step != 5}>
-          {chestQuota ? (
-            <Tekst>
-              Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
-              The contract treasury chest currently has enough xDai to support gasless transactions. Obtain some funds from a faucet and set your gas fees to minimal possible.
-            </Tekst>
-          ) : (
-            <Tekst>
-              Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
-              The treasury chest currently does <textit>not</textit> have enough xDai to support gasless transactions, pay your own gas.
-            </Tekst>
-          )}
+          <Tekst>
+            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
+            Fund your gas money by using a <a href="https://www.xdaichain.com/for-users/get-xdai-tokens/xdai-faucet#3rd-party-faucets" target="_blank">faucet</a>.
+          </Tekst>
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
       </Box>
@@ -308,6 +301,10 @@ const Tekst = styled.div`
   width: 95%;
   margin: auto;
   margin-top: 4px;
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
 `;
 
 const Collapse = styled.div`
