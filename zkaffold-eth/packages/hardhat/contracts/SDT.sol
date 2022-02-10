@@ -62,7 +62,7 @@ contract SDT is ERC20, Verifier {
             require(signals[i + 1] == messageClaimHash[i], "claim message hash does not match");
         }
 
-        // require(verifyProof(a, b, c, signals), "Invalid Proof");
+        require(verifyProof(a, b, c, signals), "Invalid Proof");
         
         emit Claim(address(uint160(signals[4])), 10**18);
         _transfer(address(this), address(uint160(signals[4])), 10**18);
