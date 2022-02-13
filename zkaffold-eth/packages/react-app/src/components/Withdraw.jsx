@@ -195,7 +195,7 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>
-            {eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop. "}
+            {eligibility ? "You're eligible for the airdrop! " : "Connect a wallet eligible for the airdrop. "}
             Make sure you've added the xdai network to Metamask via these{" "}
             <a href="https://www.xdaichain.com/for-users/wallets/metamask/metamask-setup" target="_blank">
               instructions
@@ -231,17 +231,25 @@ export default function Withdraw({
         </Heading>
 
         <Collapse collapsed={step != 3}>
-          {!!address && address === signature?.address && (
+          {!address && <Tekst>Not connected to any wallet. Select a wallet to proceed.</Tekst>}
+          {!!address && !signature && <Tekst>Sign message to proceed.</Tekst>}
+          {!!address && !!signature && address === signature.address && (
             <Tekst>
               You are currently connected to your public wallet. Switch to a different wallet to preserve anonymity.
+              Instructions to switch accounts can be found{" "}
+              <a
+                href="https://metamask.zendesk.com/hc/en-us/articles/360061346311-Switching-accounts-in-MetaMask"
+                target="_blank"
+              >
+                here
+              </a>
             </Tekst>
           )}
-          {!!address && address !== signature?.address && (
+          {!!address && !!signature && address !== signature?.address && (
             <Tekst>
               You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.
             </Tekst>
           )}
-          {!address && <Tekst>Not connected to any wallet. Select a wallet to proceed.</Tekst>}
         </Collapse>
       </Box>
 
@@ -280,25 +288,25 @@ export default function Withdraw({
 }
 
 const TickMark = ({ isCompleted, isWrong }) => {
+  if (isWrong) {
+    return (
+      <div style={{ marginBottom: "0px" }}>
+        <XCircle color="#ff9994" size={32} style={{ marginTop: "7px" }} />
+      </div>
+    );
+  }
   if (isCompleted) {
     return (
       <div style={{ marginBottom: "0px" }}>
         <CheckCircle color="#8fff58" size={32} style={{ marginTop: "7px" }} />
       </div>
     );
-  } else if (isWrong) {
-    return (
-      <div style={{ marginBottom: "0px" }}>
-        <XCircle color="#ff9994" size={32} style={{ marginTop: "7px" }} />
-      </div>
-    );
-  } else {
-    return (
-      <div style={{ marginBottom: "0px" }}>
-        <Circle size={32} style={{ marginTop: "7px" }} />
-      </div>
-    );
   }
+  return (
+    <div style={{ marginBottom: "0px" }}>
+      <Circle size={32} style={{ marginTop: "7px" }} />
+    </div>
+  );
 };
 
 const tekstcolor = "#e5e7eb";
