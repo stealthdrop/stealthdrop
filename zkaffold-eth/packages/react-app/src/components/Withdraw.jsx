@@ -83,7 +83,7 @@ export default function Withdraw({
     if (!signature) {
       return;
     }
-    setProofStatus("VERIFYING...");
+    setProofStatus("ASSEMBLING");
     const inputs = await generateProofInputs(
       signature.address,
       signature.sign,
@@ -196,7 +196,7 @@ export default function Withdraw({
         <Collapse collapsed={step != 1}>
           <Tekst>
             {eligibility ? "You're eligible for the airdrop! " : "Connect a wallet eligible for the airdrop. "}
-            Make sure you've added the xdai network to Metamask via these{" "}
+            Add the xDai chain to Metamask using these{" "}
             <a href="https://www.xdaichain.com/for-users/wallets/metamask/metamask-setup" target="_blank">
               instructions
             </a>
@@ -217,7 +217,7 @@ export default function Withdraw({
         <Collapse collapsed={step != 2}>
           <Tekst>{`Sign a message using ${displayAddress(
             address,
-          )} to ZK-prove your airdrop claim. This signature is like your one-time 'secret key' to the airdrop -- don't share it!`}</Tekst>
+          )} to ZK-prove your airdrop claim. This signature is like your secret key to the airdrop — don't share it!`}</Tekst>
           <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
             {!!signature?.sign ? "SIGNED" : "SIGN MESSAGE"}
           </Bootoon>
@@ -261,7 +261,7 @@ export default function Withdraw({
         <Collapse collapsed={step != 4}>
           <Tekst>
             Generate proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
-            ! It can take 3-5 minutes to generate the proof (and maybe longer is there is a queue).
+            ! It may take 3-5 minutes to generate the proof (and longer if there is a queue).
           </Tekst>
           <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
