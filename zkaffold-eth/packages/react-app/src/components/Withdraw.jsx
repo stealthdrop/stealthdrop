@@ -261,7 +261,7 @@ export default function Withdraw({
         <Collapse collapsed={step != 4}>
           <Tekst>
             Generate proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
-            !
+            ! It can take 3-5 minutes to generate the proof (and maybe longer is there is a queue).
           </Tekst>
           <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
