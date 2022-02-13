@@ -150,20 +150,20 @@ export default function Withdraw({
     console.log("returned", returned);
   };
 
-  const chestQuota = useMemo(async () => {
-    const contract = contracts ? contracts["SDT"] : "";
-    if (!proof || !contract || !gasPrice) {
-      console.log("proof/contract not found");
-      return false;
-    }
-    const quota = await contract.connect(signer)["getChestQuota"]();
-    const claimTokensGas = await contract.estimateGas.claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]);
-    console.log("gasPrice", gasPrice);
-    console.log("claimTokensGas", claimTokensGas);
-    console.log("estimatedGasPrice", claimTokensGas * gasPrice);
-    console.log("quota", quota);
-    return claimTokensGas * gasPrice * 5 < quota;
-  }, [contracts, proof, gasPrice]);
+  // const chestQuota = useMemo(async () => {
+  //   const contract = contracts ? contracts["SDT"] : "";
+  //   if (!proof || !contract || !gasPrice) {
+  //     console.log("proof/contract not found");
+  //     return false;
+  //   }
+  //   const quota = await contract.connect(signer)["getChestQuota"]();
+  //   const claimTokensGas = await contract.estimateGas.claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]);
+  //   console.log("gasPrice", gasPrice);
+  //   console.log("claimTokensGas", claimTokensGas);
+  //   console.log("estimatedGasPrice", claimTokensGas * gasPrice);
+  //   console.log("quota", quota);
+  //   return claimTokensGas * gasPrice * 5 < quota;
+  // }, [contracts, proof, gasPrice]);
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
