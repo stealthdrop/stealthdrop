@@ -44,7 +44,7 @@ export default function Withdraw({
   mainnetProvider,
   provider,
   transactor,
-  gasPrice
+  gasPrice,
 }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
@@ -83,6 +83,7 @@ export default function Withdraw({
     if (!signature) {
       return;
     }
+    setProofStatus("VERIFYING...");
     const inputs = await generateProofInputs(
       signature.address,
       signature.sign,
@@ -91,7 +92,7 @@ export default function Withdraw({
       ethers.utils.hashMessage(signText),
     );
     console.log("inputs", inputs);
-    console.log("inputss", JSON.stringify(inputs));
+    console.log("stringify'd inputs", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
     const returnData = await postData(backendUrl + "generate_proof", inputs);
@@ -100,7 +101,7 @@ export default function Withdraw({
       return;
     }
     const returnJSON = await returnData.json();
-    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR");
+    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR!");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
@@ -111,7 +112,7 @@ export default function Withdraw({
         if (!json) {
           console.log("error", res);
           clearInterval(intervalId);
-          setProofStatus("ERROR");
+          setProofStatus("ERROR: SERVER LOAD HIGH, RETRY LATER!");
         } else {
           setProof(json);
           clearInterval(intervalId);
@@ -122,7 +123,7 @@ export default function Withdraw({
       } else {
         console.log("error", res);
         clearInterval(intervalId);
-        setProofStatus("ERROR");
+        setProofStatus("ERROR: SERVER LOAD HIGH, RETRY LATER!");
       }
     }, 10000);
   };
@@ -194,9 +195,12 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>
-            {eligibility
-              ? "You're eligible for the airdrop!"
-              : "Connect a wallet eligible for the airdrop."}
+            {eligibility ? "You're eligible for the airdrop!" : "Connect a wallet eligible for the airdrop. "}
+            Make sure you've added the xdai network to Metamask via these{" "}
+            <a href="https://www.xdaichain.com/for-users/wallets/metamask/metamask-setup" target="_blank">
+              instructions
+            </a>
+            .
           </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
             {web3Modal && web3Modal.cachedProvider && address
@@ -211,7 +215,9 @@ export default function Withdraw({
           <TickMark isCompleted={!!signature} />
         </Heading>
         <Collapse collapsed={step != 2}>
-          <Tekst>{`Sign a message using ${displayAddress(address)} to ZK-prove your airdrop claim.`}</Tekst>
+          <Tekst>{`Sign a message using ${displayAddress(
+            address,
+          )} to ZK-prove your airdrop claim. This signature is like your one-time 'secret key' to the airdrop -- don't share it!`}</Tekst>
           <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
             {!!signature?.sign ? "SIGNED" : "SIGN MESSAGE"}
           </Bootoon>
@@ -246,7 +252,8 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 4}>
           <Tekst>
-            Generate Proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
+            Generate proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
+            !
           </Tekst>
           <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
@@ -258,8 +265,12 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 5}>
           <Tekst>
-            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
-            Fund your gas money by using a <a href="https://www.xdaichain.com/for-users/get-xdai-tokens/xdai-faucet#3rd-party-faucets" target="_blank">faucet</a>.
+            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain. Fund your
+            gas money with a{" "}
+            <a href="https://www.xdaichain.com/for-users/get-xdai-tokens/xdai-faucet#3rd-party-faucets" target="_blank">
+              faucet
+            </a>
+            .
           </Tekst>
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
