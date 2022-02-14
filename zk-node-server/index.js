@@ -35,6 +35,7 @@ const inQueue = (hash) => {
 };
 
 const startNewProcess = (hash) => {
+  if (!!outputData[hash]) return;
   const inputFileName = `inputs/${hash}.json`;
   const witnessFileName = `inputs/${hash}.json_witness`;
   // spawn a child process to run the proof generation
@@ -52,6 +53,7 @@ const startNewProcess = (hash) => {
     console.log("outputData", outputData);
     currentProcessesRunning.delete(hash);
     processQueue();
+    prover.kill();
     // delete the relevant files in inputs folder
     fs.unlinkSync(inputFileName);
     fs.unlinkSync(witnessFileName);
@@ -65,8 +67,8 @@ const startNewProcess = (hash) => {
     currentProcessesRunning.delete(hash);
     processQueue();
     console.log(`child process exited with code ${code}`);
-    fs.unlinkSync(inputFileName);
-    fs.unlinkSync(witnessFileName);
+//    fs.unlinkSync(inputFileName);
+//    fs.unlinkSync(witnessFileName);
   });
   return true;
 };
