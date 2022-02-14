@@ -1,4 +1,4 @@
-# stealthdrop
+# StealthDrop
 
 ## Anonymous Airdrops using ZK proofs
 
@@ -6,7 +6,7 @@
 
 # Demo
 
-[INSERT VIDEO]
+https://user-images.githubusercontent.com/6984346/153767431-b2e88fda-1403-4840-8e00-75b5c6df5ddf.mov
 
 ### User flow:
 

@@ -44,7 +44,7 @@ export default function Withdraw({
   mainnetProvider,
   provider,
   transactor,
-  gasPrice
+  gasPrice,
 }) {
   const [signature, setSignature] = useState();
   const [proof, setProof] = useState();
@@ -83,6 +83,7 @@ export default function Withdraw({
     if (!signature) {
       return;
     }
+    setProofStatus("ASSEMBLING");
     const inputs = await generateProofInputs(
       signature.address,
       signature.sign,
@@ -91,7 +92,7 @@ export default function Withdraw({
       ethers.utils.hashMessage(signText),
     );
     console.log("inputs", inputs);
-    console.log("inputss", JSON.stringify(inputs));
+    console.log("stringify'd inputs", JSON.stringify(inputs));
     if (!inputs) return;
     // send api post request to generate proof
     const returnData = await postData(backendUrl + "generate_proof", inputs);
@@ -100,7 +101,7 @@ export default function Withdraw({
       return;
     }
     const returnJSON = await returnData.json();
-    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR");
+    setProofStatus(returnJSON && returnJSON["id"] ? "LOADING" : "ERROR!");
     const processId = returnJSON["id"];
     console.log("processId", processId);
 
@@ -111,7 +112,7 @@ export default function Withdraw({
         if (!json) {
           console.log("error", res);
           clearInterval(intervalId);
-          setProofStatus("ERROR");
+          setProofStatus("ERROR: SERVER LOAD HIGH, RETRY LATER!");
         } else {
           setProof(json);
           clearInterval(intervalId);
@@ -122,7 +123,7 @@ export default function Withdraw({
       } else {
         console.log("error", res);
         clearInterval(intervalId);
-        setProofStatus("ERROR");
+        setProofStatus("ERROR: SERVER LOAD HIGH, RETRY LATER!");
       }
     }, 10000);
   };
@@ -150,20 +151,20 @@ export default function Withdraw({
     console.log("returned", returned);
   };
 
-  const chestQuota = useMemo(async () => {
-    const contract = contracts ? contracts["SDT"] : "";
-    if (!proof || !contract || !gasPrice) {
-      console.log("proof/contract not found");
-      return false;
-    }
-    const quota = await contract.connect(signer)["getChestQuota"]();
-    const claimTokensGas = await contract.estimateGas.claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]);
-    console.log("gasPrice", gasPrice);
-    console.log("claimTokensGas", claimTokensGas);
-    console.log("estimatedGasPrice", claimTokensGas * gasPrice);
-    console.log("quota", quota);
-    return claimTokensGas * gasPrice * 5 < quota;
-  }, [contracts, proof, gasPrice]);
+  // const chestQuota = useMemo(async () => {
+  //   const contract = contracts ? contracts["SDT"] : "";
+  //   if (!proof || !contract || !gasPrice) {
+  //     console.log("proof/contract not found");
+  //     return false;
+  //   }
+  //   const quota = await contract.connect(signer)["getChestQuota"]();
+  //   const claimTokensGas = await contract.estimateGas.claimTokens(proof["pi_a"], proof["pi_b"], proof["pi_c"], proof["inputs"]);
+  //   console.log("gasPrice", gasPrice);
+  //   console.log("claimTokensGas", claimTokensGas);
+  //   console.log("estimatedGasPrice", claimTokensGas * gasPrice);
+  //   console.log("quota", quota);
+  //   return claimTokensGas * gasPrice * 5 < quota;
+  // }, [contracts, proof, gasPrice]);
 
   return (
     <div style={{ margin: "auto", width: "70vw", display: "flex", flexDirection: "column", padding: "16px" }}>
@@ -194,9 +195,12 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 1}>
           <Tekst>
-            {eligibility
-              ? "You're eligible for the airdrop!"
-              : "Connect a wallet eligible for the airdrop."}
+            {eligibility ? "You're eligible for the airdrop! " : "Connect a wallet eligible for the airdrop. "}
+            Add the xDai chain to Metamask using these{" "}
+            <a href="https://www.xdaichain.com/for-users/wallets/metamask/metamask-setup" target="_blank">
+              instructions
+            </a>
+            .
           </Tekst>
           <Bootoon key="loginbutton" shape="round" size="large" onClick={loadWeb3Modal} disabled={!!address}>
             {web3Modal && web3Modal.cachedProvider && address
@@ -211,7 +215,9 @@ export default function Withdraw({
           <TickMark isCompleted={!!signature} />
         </Heading>
         <Collapse collapsed={step != 2}>
-          <Tekst>{`Sign a message using ${displayAddress(address)} to ZK-prove your airdrop claim.`}</Tekst>
+          <Tekst>{`Sign a message using ${displayAddress(
+            address,
+          )} to ZK-prove your airdrop claim. This signature is like your secret key to the airdrop — don't share it!`}</Tekst>
           <Bootoon onClick={signMessage} disabled={!!signature?.sign}>
             {!!signature?.sign ? "SIGNED" : "SIGN MESSAGE"}
           </Bootoon>
@@ -225,17 +231,25 @@ export default function Withdraw({
         </Heading>
 
         <Collapse collapsed={step != 3}>
-          {!!address && address === signature?.address && (
+          {!address && <Tekst>Not connected to any wallet. Select a wallet to proceed.</Tekst>}
+          {!!address && !signature && <Tekst>Sign message to proceed.</Tekst>}
+          {!!address && !!signature && address === signature.address && (
             <Tekst>
               You are currently connected to your public wallet. Switch to a different wallet to preserve anonymity.
+              Instructions to switch accounts can be found{" "}
+              <a
+                href="https://metamask.zendesk.com/hc/en-us/articles/360061346311-Switching-accounts-in-MetaMask"
+                target="_blank"
+              >
+                here
+              </a>
             </Tekst>
           )}
-          {!!address && address !== signature?.address && (
+          {!!address && !!signature && address !== signature?.address && (
             <Tekst>
               You are now connected to a different wallet. The tokens will be withdrawn to this anonymous wallet.
             </Tekst>
           )}
-          {!address && <Tekst>Not connected to any wallet. Select a wallet to proceed.</Tekst>}
         </Collapse>
       </Box>
 
@@ -246,7 +260,8 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 4}>
           <Tekst>
-            Generate Proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
+            Generate proof to withdraw your tokens to {address ? address.substr(0, 6) + "..." + address.substr(-4) : ""}
+            ! It may take 3-5 minutes to generate the proof (and longer if there is a queue).
           </Tekst>
           <Bootoon onClick={generateZKProof}>{proofStatus}</Bootoon>
         </Collapse>
@@ -258,8 +273,12 @@ export default function Withdraw({
         </Heading>
         <Collapse collapsed={step != 5}>
           <Tekst>
-            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain.
-            Fund your gas money by using a <a href="https://www.xdaichain.com/for-users/get-xdai-tokens/xdai-faucet#3rd-party-faucets" target="_blank">faucet</a>.
+            Claim tokens by submitting a transaction containing the ZK proof to the ERC-20 contract on-chain. Fund your
+            gas money with a{" "}
+            <a href="https://www.xdaichain.com/for-users/get-xdai-tokens/xdai-faucet#3rd-party-faucets" target="_blank">
+              faucet
+            </a>
+            .
           </Tekst>
           <Bootoon onClick={claim}>CLAIM TOKEN</Bootoon>
         </Collapse>
@@ -269,25 +288,25 @@ export default function Withdraw({
 }
 
 const TickMark = ({ isCompleted, isWrong }) => {
+  if (isWrong) {
+    return (
+      <div style={{ marginBottom: "0px" }}>
+        <XCircle color="#ff9994" size={32} style={{ marginTop: "7px" }} />
+      </div>
+    );
+  }
   if (isCompleted) {
     return (
       <div style={{ marginBottom: "0px" }}>
         <CheckCircle color="#8fff58" size={32} style={{ marginTop: "7px" }} />
       </div>
     );
-  } else if (isWrong) {
-    return (
-      <div style={{ marginBottom: "0px" }}>
-        <XCircle color="#ff9994" size={32} style={{ marginTop: "7px" }} />
-      </div>
-    );
-  } else {
-    return (
-      <div style={{ marginBottom: "0px" }}>
-        <Circle size={32} style={{ marginTop: "7px" }} />
-      </div>
-    );
   }
+  return (
+    <div style={{ marginBottom: "0px" }}>
+      <Circle size={32} style={{ marginTop: "7px" }} />
+    </div>
+  );
 };
 
 const tekstcolor = "#e5e7eb";

@@ -48,7 +48,7 @@ export default function Balance(props) {
     () => {
       getBalance();
     },
-    props.pollTime ? props.pollTime : 1999,
+    19999999999,
   );
 
   let floatBalance = parseFloat("0.00");
