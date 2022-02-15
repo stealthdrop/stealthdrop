@@ -4,6 +4,8 @@
 
 [stealthdrop.xyz](https://stealthdrop.xyz) is an airdrop utility that enables ERC20 token airdrops that can be claimed by completely anonymous accounts.
 
+_EDIT_: [@0xB07DAD](https://twitter.com/0xB07DAD) discovered a vulnerability in this scheme described in more detail [here](https://twitter.com/0xPARC/status/1493704577002049537?s=20&t=X-5Bs1oWNjmbTASp2T82DA). Fix and more to follow soon!
+
 # Demo
 
 https://user-images.githubusercontent.com/6984346/153767431-b2e88fda-1403-4840-8e00-75b5c6df5ddf.mov
