@@ -2,7 +2,7 @@
 
 ## Anonymous Airdrops using ZK proofs
 
-[stealthdrop.xyz](https://stealthdrop.xyz) is an airdrop utility that enables ERC20 token airdrops that can be claimed by completely anonymous accounts.
+[stealthdrop.xyz](https://stealthdrop.xyz) is an airdrop utility by 0xPARC ([Aayush](https://twitter.com/yush_g), Adhyyan, [Nalin](https://twitter.com/nibnalin)) that enables ERC20 token airdrops that can be claimed by completely anonymous accounts.
 
 _EDIT_: [@0xB07DAD](https://twitter.com/0xB07DAD) discovered a vulnerability in this scheme described in more detail [here](https://twitter.com/0xPARC/status/1493704577002049537?s=20&t=X-5Bs1oWNjmbTASp2T82DA). Fix and more to follow soon!
 
