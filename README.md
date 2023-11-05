@@ -4,7 +4,7 @@
 
 [stealthdrop.xyz](https://stealthdrop.xyz) is an airdrop utility by 0xPARC ([Aayush](https://twitter.com/yush_g), [Adhyyan](https://github.com/Adhyyan1252), [Nalin](https://twitter.com/nibnalin)) that enables ERC20 token airdrops that can be claimed by completely anonymous accounts.
 
-_EDIT_: [@0xB07DAD](https://twitter.com/0xB07DAD) discovered a vulnerability in this scheme described in more detail [here](https://twitter.com/0xPARC/status/1493704577002049537?s=20&t=X-5Bs1oWNjmbTASp2T82DA). Fix and more to follow soon!
+_EDIT_: [@0xB07DAD](https://twitter.com/0xB07DAD) discovered a vulnerability in this scheme described in more detail [here](https://twitter.com/0xPARC/status/1493704577002049537?s=20&t=X-5Bs1oWNjmbTASp2T82DA). To fix this problem without sacrificing privacy or decentralization. we embarked on a years long project. We published a [paper](https://aayushg com/thesis.pdf) for a new cryptographic signature PLUME on ECDSA that was not malleable. then made that into [ERC 7524](https://github.com/ethereum/ERCs/pull/37).
 
 # Demo
 
