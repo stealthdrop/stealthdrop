@@ -58,7 +58,7 @@ if (DEBUG) console.log("📡 Connecting to Mainnet Ethereum");
 // const mainnetProvider = new InfuraProvider("mainnet",INFURA_ID);
 //
 // attempt to connect to our own scaffold eth rpc and if that fails fall back to infura...
-const scaffoldEthProvider = new JsonRpcProvider("https://rpc.scaffoldeth.io:48544");
+const scaffoldEthProvider = new JsonRpcProvider("https://rpc.buidlguidl.com:48544");
 const mainnetInfura = new JsonRpcProvider("https://mainnet.infura.io/v3/" + INFURA_ID);
 // ( ⚠️ Getting "failed to meet quorum" errors? Check your INFURA_I
 
