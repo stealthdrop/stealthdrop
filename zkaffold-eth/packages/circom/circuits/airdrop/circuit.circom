@@ -25,6 +25,7 @@ template Main(levels, n, k) {
         sigVerify.msghash[i] <== msghash[i];
         for (var j = 0;j < 2;j++) sigVerify.pubkey[j][i] <== pubkey[j][i];
     }
+    sigVerify.result === 1;
 
     component withdrawal = Withdraw(levels, n, k);
     withdrawal.root <== root;
